@@ -3,4 +3,4 @@
 all: test
 
 test:
-	python -m 'pytest'
+	pytest
