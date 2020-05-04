@@ -1,10 +1,26 @@
-## developed with Python 3.7.4
+"""
+A parallel version of the L-BFGS-B optimizer of scipy.optimize.minimize.
+
+Function
+--------
+- minimize_parallel : minimization of a function of several variables
+                      unsing the L-BFGS-B algorithm. All caluclatons
+                      for one step (evaluation of 'fun' and 'jac') are
+                      executed parallel.
+
+Developed with Python 3.7.4
+"""
+
+
+import warnings
 import concurrent.futures
 import functools
 import time
 import itertools
 import numpy as np
 from scipy.optimize import minimize
+
+__all__ = ['minimize_parallel']
 
 class EvalParallel:
     def __init__(self, fun, jac=None, args=(),
@@ -135,65 +151,112 @@ class EvalParallel:
             print('jac(' + str(x)+ ') = ' + str(self.jac_val))
         return self.jac_val
 
+    
 def minimize_parallel(fun, x0,
                       args=(),
                       jac=None,
-                      # bounds,
-                      # tol,
-                      options={#'disp': None,
-                          #'maxcor': 10,
-                          #'ftol': 2.220446049250313e-09,
-                          #'gtol': 1e-05,
-                          'eps': 1e-08,
-                          #'maxfun': 15000,
-                          #'maxiter': 15000,
-                          #'iprint': -1,
-                          #'maxls': 20
-                      },
-                      # callback,
+                      bounds=None,
+                      tol=None,
+                      options=None,
+                      callback=None,
                       parallel={'forward':True, 'verbose':False}):
-    
-    if not (isinstance(x0, list) or isinstance(x0, tuple)):
-        n = len(x0)
-    else:
-        n = 1
 
+    """
+    A parallel version of the L-BFGS-B optimizer of `func:scipy.optimize.minimize()`.
+    
+    Parameters
+    ----------
+
+    All the same as in `func:scipy.optimize.minimize()` except for `method`
+    which is set to `'L-BFGS-B'` and thet additional argument
+    parallel: ... 
+    """
+    
+    ## get length of x0
+    try:
+        n = len(x0)
+    except:
+        n = 1
+        
+    ## update default options with specified options
+    options_used = {'disp': None, 'maxcor': 10,
+                    'ftol': 2.220446049250313e-09, 'gtol': 1e-05,
+                    'eps': 1e-08, 'maxfun': 15000,
+                    'maxiter': 15000, 'iprint': -1, 'maxls': 20}
+    if not options is None: 
+        assert isinstance(options, dict), "argument 'options' must be of type 'dict'"
+        options_used.update(options)
+    if not tol is None:
+        if not options is None and 'gtol' in options:
+            warnings.warn("'tol' is ignored and 'gtol' in 'opitons' is used insetad.",
+                          RuntimeWarning)
+        else:
+            options_used['gtol'] = tol
+
+    parallel_used = {'forward': True, 'verbose': False}
+    if not parallel is None: 
+        assert isinstance(parallel, dict), "argument 'parallel' must be of type 'dict'"
+        parallel_used.update(parallel)
+
+
+            
     funJac = EvalParallel(fun=fun,
                           jac=jac,
                           args=args,
-                          eps=options.get('eps'),
-                          forward=parallel.get('forward'),
-                          verbose=parallel.get('verbose'),
+                          eps=options_used.get('eps'),
+                          forward=parallel_used.get('forward'),
+                          verbose=parallel_used.get('verbose'),
                           n=n)
-
-    ret = minimize(fun=funJac.fun,
+    out = minimize(fun=funJac.fun,
                    x0=x0,
                    jac=funJac.jac,
-                   method='L-BFGS-B')
-    return ret
-
-
+                   method='L-BFGS-B',
+                   bounds=bounds,
+                   callback=callback,
+                   options=options_used)
+    return out
 
 if __name__ == '__main__':
     ## a simple example
     def f(x, a, b):
-        print('.', end='')
+        print('fn')
         time.sleep(.2)
-        out = sum((x-a)**2)
-        return out
+        return sum((x-a)**2)
     
+    def g(x, a, b):
+        print('gr')
+        return 2*(x-a)
+
     print(f(np.array([1,2]), a=1, b=2))
     
-    o1 = minimize(fun=f, x0=np.array([10,20]), args=(77,44), method='L-BFGS-B')
+    o1 = minimize(fun=f, x0=np.array([10,20]), jac=g, args=(77,44),
+                  method='L-BFGS-B',
+                  options={'disp':False, 'maxls':2000})
     print('\n', o1)
     
-    o2 = minimize_parallel(fun=f, x0=np.array([10,20]), args=(77,44))
+    o2 = minimize_parallel(fun=f, x0=np.array([10,20]), jac=g, args=(77,44),
+                           options={'disp':False, 'maxls':2000})
     print('\n', o2)
 
+    
     all(np.isclose(o1.jac, o2.jac, atol=1e-5))
 
+    def f(x, a, b):
+        assert any(x >= b), f'x >= {b:.3f} does not hold.'
+        print('fn')
+        time.sleep(.2)
+        return sum((x-a)**2)
+    
+    o1 = minimize(fun=f, x0=np.array([10,20]), args=(0, 1),
+                  method='L-BFGS-B',
+                  bounds=Bounds(lb=np.array([1,1]), ub=[np.inf,np.inf]))
+
+    o2 = minimize_parallel(fun=f, x0=np.array([10,20]), args=(0,1),
+                           bounds=Bounds(lb=np.array([1,1]), ub=[np.inf,np.inf]))
+    print(o1)
 
 
+    
     def fun_2args0(x, a, b):
         return sum((x-a)**2) + b
     def jac_2args0(x, a, b):
@@ -274,3 +337,7 @@ if __name__ == '__main__':
  #   status: 0
  #  success: True
  #        x: array([0.99502494, 1.00001238])
+
+
+
+
