@@ -65,6 +65,36 @@ def test_minimize_parallel(fn_id, jac_flag, forward, x0, disp, maxcor, ftol, gto
     return None
 
 
+## test 'parallel' argument: 'max_workers', 'forward', 'verbose'  
+@pytest.mark.parametrize("fn_id", [0])    
+@pytest.mark.parametrize("jac_flag", [True, False])
+@pytest.mark.parametrize("x0", [np.array([1]), np.array([1,2])])    
+@pytest.mark.parametrize("max_workers", [None, 1, 2])
+@pytest.mark.parametrize("forward", [True, False])
+@pytest.mark.parametrize("verbose", [True, False])
+def test_minimize_parallel_parallel_arg(fn_id, jac_flag, x0, max_workers, forward, verbose):
+
+    ## concurrent.futures.ProcessPoolExecutor() requires fun and jac to be globals
+    global fun, jac
+
+    ## load parameters of scenario
+    fun = globals()['fun' + str(fn_id)]
+    jac = globals()['jac' + str(fn_id)] if jac_flag else None
+    parallel = {'max_workers': max_workers, 'forward': forward, 'verbose': verbose}
+    
+    mp = minimize_parallel(fun=fun, x0=x0,
+                           jac=jac,
+                           parallel=parallel)
+    m = minimize(fun=fun, x0=x0, method="L-BFGS-B",
+                 jac=jac) 
+    
+    assert np.isclose(mp.fun, m.fun, atol=1e-5)
+    assert all(np.isclose(mp.jac, m.jac, atol=1e-5))
+    #    assert mp.success == m.success
+    assert all(np.isclose(mp.x, m.x))
+    return None
+
+
 ## test options=None and 'tol'
 @pytest.mark.parametrize("fn_id", [0])    
 @pytest.mark.parametrize("jac_flag", [True, False])
@@ -204,7 +234,7 @@ def test_minimize_parallel_2args(args, x0, eps, forward, jac_flag, fn_id):
     return None
 
 
-## test lower boundaries
+## test lower boundaries ----------------------------------------
 def fun_lower0(x, lb):
     assert any(x >= lb), "x has to bigger than lower bound" 
     return sum((x-1)**2)
@@ -245,7 +275,7 @@ def test_minimize_parallel_bound_lower(fn_id, jac_flag, forward, x0, lb):
     return None
 
 
-## test upper boundaries
+## test upper boundaries -------------------
 def fun_upper0(x, ub):
     assert any(x <= ub), "x has to be smaller than upper bound" 
     return sum((x-1)**2)

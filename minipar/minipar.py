@@ -1,21 +1,18 @@
 """
-A parallel version of the L-BFGS-B optimizer of scipy.optimize.minimize.
+A parallel version of the L-BFGS-B optimizer of `scipy.optimize.minimize()`.
+Using it can significantly reduce the optimization time. For an objective
+function with p parameters the optimization speed increases by up to
+factor 1+p, when no analytic gradient is specified and 1+p processor cores
+with sufficient memory are available.
 
 Function
 --------
-- minimize_parallel : minimization of a function of several variables
-                      unsing the L-BFGS-B algorithm. All caluclatons
-                      for one step (evaluation of 'fun' and 'jac') are
-                      executed parallel.
-
-Developed with Python 3.7.4
+- minimize_parallel : parallel version of `scipy.optimize.minimize()`. 
 """
-
 
 import warnings
 import concurrent.futures
 import functools
-import time
 import itertools
 import numpy as np
 from scipy.optimize import minimize
@@ -23,12 +20,13 @@ from scipy.optimize import minimize
 __all__ = ['minimize_parallel']
 
 class EvalParallel:
-    def __init__(self, fun, jac=None, args=(),
-                 eps=1e-8, forward=True, verbose=False, n=1):
+    def __init__(self, fun, jac=None, args=(), eps=1e-8, max_workers=None, 
+                 forward=True, verbose=False, n=1):
         self.fun_in = fun
         self.jac_in = jac
         self.eps = eps
         self.forward = forward
+        self.max_workers = max_workers
         self.verbose = verbose
         self.x_val = None
         self.fun_val = None
@@ -108,7 +106,8 @@ class EvalParallel:
             else:
                 ftmp = self._eval_approx
 
-            with concurrent.futures.ProcessPoolExecutor() as executor:
+            with concurrent.futures.ProcessPoolExecutor(
+                    max_workers=self.max_workers) as executor:
                 ret = executor.map(ftmp, eps_at,
                                    itertools.repeat(self.fun_in),
                                    itertools.repeat(x),
@@ -128,7 +127,8 @@ class EvalParallel:
         else:
             ftmp = self._eval_fun_jac
             
-        with concurrent.futures.ProcessPoolExecutor() as executor:
+        with concurrent.futures.ProcessPoolExecutor(
+                max_workers=self.max_workers) as executor:
             ret = executor.map(ftmp, [0,1],
                                itertools.repeat(self.fun_in),
                                itertools.repeat(self.jac_in),
@@ -159,17 +159,62 @@ def minimize_parallel(fun, x0,
                       tol=None,
                       options=None,
                       callback=None,
-                      parallel={'forward':True, 'verbose':False}):
+                      parallel=None):
 
     """
-    A parallel version of the L-BFGS-B optimizer of `func:scipy.optimize.minimize()`.
+    A parallel version of the L-BFGS-B optimizer of
+    `scipy.optimize.minimize()`. Using it can significantly reduce the
+    optimization time. For an objective function with p parameters the
+    optimization speed increases by about factor 1+p, when no analytic
+    gradient is specified and 1+p processor cores with sufficient memory
+    are available.
     
     Parameters
     ----------
+    `fun`, `x0`, `args`, `jac`, `bounds`, `tol`, `options`, and `callback`
+    are the same as the corresponding arguments of `scipy.optimize.minimize()`.
+    See the documentation of `scipy.optimize.minimize()` and
+    `scipy.optimize.minimize(method='L-BFGS-B')` for more information.
+    
+    Additional arguments controlling the parallel execution are:
 
-    All the same as in `func:scipy.optimize.minimize()` except for `method`
-    which is set to `'L-BFGS-B'` and thet additional argument
-    parallel: ... 
+    parallel: dict
+        max_workers: The maximum number of processes that can be used to
+            execute the given calls. If None or not given then as many
+            worker processes will be created as the machine has processors.   
+
+        forward: bool. If `True` (default) the forward difference method is
+            used to approximate the gradient when `jac` is `None`.
+            If `False` the central difference method is used.  
+
+        verbose: bool. If `True` additional output is printed to the console.
+
+    Note
+    ----
+    When `jac=None` and `bounds` specified, it can be advisable to
+    increase the lower bounds by `eps` and decrease the upper bounds by `eps`
+    because the optimizer might try to evaluate fun(upper+eps).
+    `eps` is specified in `options` and defaults to `1e-8`, see
+    `scipy.optimize.minimize(method='L-BFGS-B')`.
+    
+    References
+    ----------
+    When using the package please cite:
+    F. Gerber and R. Furrer (2019) optimParallel: An R package providing
+    a parallel version of the L-BFGS-B optimization method.
+    The R Journal, 11(1):352-358, 2019,
+    https://doi.org/10.32614/RJ-2019-030
+
+    R package with similar functionality:
+    https://CRAN.R-project.org/package=optimParallel
+
+    Source code of Python module:
+    https://github.com/florafauna/optimParallel-python
+    
+    Author
+    ------
+    Florian Gerber, flora.fauna.gerber@gmail.com
+    https://user.math.uzh.ch/gerber/index.html    
     """
     
     ## get length of x0
@@ -193,17 +238,16 @@ def minimize_parallel(fun, x0,
         else:
             options_used['gtol'] = tol
 
-    parallel_used = {'forward': True, 'verbose': False}
+    parallel_used = {'max_workers': None, 'forward': True, 'verbose': False}
     if not parallel is None: 
         assert isinstance(parallel, dict), "argument 'parallel' must be of type 'dict'"
         parallel_used.update(parallel)
-
-
             
     funJac = EvalParallel(fun=fun,
                           jac=jac,
                           args=args,
                           eps=options_used.get('eps'),
+                          max_workers=parallel_used.get('max_workers'),
                           forward=parallel_used.get('forward'),
                           verbose=parallel_used.get('verbose'),
                           n=n)
@@ -217,10 +261,11 @@ def minimize_parallel(fun, x0,
     return out
 
 if __name__ == '__main__':
+    import time
     ## a simple example
     def f(x, a, b):
         print('fn')
-        time.sleep(.2)
+        time.sleep(1)
         return sum((x-a)**2)
     
     def g(x, a, b):
@@ -234,8 +279,9 @@ if __name__ == '__main__':
                   options={'disp':False, 'maxls':2000})
     print('\n', o1)
     
-    o2 = minimize_parallel(fun=f, x0=np.array([10,20]), jac=g, args=(77,44),
-                           options={'disp':False, 'maxls':2000})
+    o2 = minimize_parallel(fun=f, x0=np.array([10,20]), args=(77,44),
+                           options={'disp':False, 'maxls':2000},
+                           parallel={'max_workers': 3})
     print('\n', o2)
 
     
