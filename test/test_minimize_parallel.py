@@ -1,3 +1,5 @@
+## tests for minimize_parallel()
+
 import pytest
 import numpy as np
 from scipy.optimize import Bounds, minimize
@@ -24,7 +26,7 @@ def jac1(x):
 @pytest.mark.parametrize("gtol", [1e-5, 1e-2])
 @pytest.mark.parametrize("eps", [1e-8, 1e-2])
 ## it does not make sense to test for 'maxfun'
-@pytest.mark.parametrize("maxiter", [15000, 5])
+@pytest.mark.parametrize("maxiter", [15000, 2])
 @pytest.mark.parametrize("iprint", [-1,100])
 @pytest.mark.parametrize("maxls", [20,1])
 def test_minimize_parallel(fn_id, jac_flag, forward, x0, disp, maxcor, ftol, gtol,
@@ -36,8 +38,9 @@ def test_minimize_parallel(fn_id, jac_flag, forward, x0, disp, maxcor, ftol, gto
     ## load parameters of scenario
     fun = globals()['fun' + str(fn_id)]
     jac = globals()['jac' + str(fn_id)] if jac_flag else None
-    options = {'disp': disp, 'maxcor': maxcor, 'eps': eps, 'ftol': ftol, 'gtol': gtol,
-             'maxiter': maxiter, 'iprint': iprint, 'maxls': maxls}
+    options = {'disp': disp, 'maxcor': maxcor, 'eps': eps, 'ftol': ftol,
+               'gtol': gtol, 'maxiter': maxiter, 'iprint': iprint,
+               'maxls': maxls}
     parallel = {'forward': forward, 'verbose': False}
 
     
@@ -49,6 +52,7 @@ def test_minimize_parallel(fn_id, jac_flag, forward, x0, disp, maxcor, ftol, gto
                            options=options,
                            # callback,
                            parallel=parallel)
+
     m = minimize(fun=fun, x0=x0, method="L-BFGS-B",
                  # args,
                  jac=jac,
@@ -57,11 +61,13 @@ def test_minimize_parallel(fn_id, jac_flag, forward, x0, disp, maxcor, ftol, gto
                  options=options
                  # callback
     ) 
-    
+
+    ## test that minimimze_parallel() close to minimze()
     assert np.isclose(mp.fun, m.fun, atol=1e-5)
     assert all(np.isclose(mp.jac, m.jac, atol=1e-5))
-    #    a ssert mp.success == m.success
+    # assert mp.success == m.success
     assert all(np.isclose(mp.x, m.x))
+   
     return None
 
 
@@ -161,28 +167,18 @@ def test_minimize_parallel_1args(args, x0, eps, forward, jac_flag, fn_id):
     options = {'eps': eps}
     parallel = {'forward': forward, 'verbose': False}
 
-    mp = minimize_parallel(fun=fun, x0=x0,
-                           args = args,
-                           jac=jac,
-                           # bounds,
-                           # tol,
+    mp = minimize_parallel(fun=fun, x0=x0, args=args, jac=jac,
                            options=options,
-                           # callback,
-                        parallel=parallel)
-    m = minimize(fun=fun, x0=x0, method="L-BFGS-B",
-                 args=args,
-                 jac=jac,
-                 # bounds,
-                 # tol,
-                 options=options
-                 # callback
-    )
+                           parallel=parallel)
+    m = minimize(fun=fun, x0=x0, method="L-BFGS-B", args=args, jac=jac,
+                 options=options)
 
     
     assert np.isclose(mp.fun, m.fun)
     assert all(np.isclose(mp.jac, m.jac, atol=1e-5))
     assert mp.success == m.success
     assert all(np.isclose(mp.x, m.x))
+
     return None
 
 
@@ -314,3 +310,7 @@ def test_minimize_parallel_bound_upper(fn_id, jac_flag, forward, x0, ub):
 #    assert mp.success == m.success
     assert all(np.isclose(mp.x, m.x))
     return None
+
+
+
+

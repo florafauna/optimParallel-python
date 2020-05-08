@@ -17,7 +17,7 @@ import itertools
 import numpy as np
 from scipy.optimize import minimize
 
-__all__ = ['minimize_parallel']
+__all__ = ['minimize_parallel', 'fmin_l_bfgs_b_parallel']
 
 class EvalParallel:
     def __init__(self, fun, jac=None, args=(), eps=1e-8, max_workers=None, 
@@ -37,10 +37,11 @@ class EvalParallel:
             self.args = tuple(args)
         self.n = n
             
+    ## static helper methods are used for parallel execution with map()
+    ## Other
     @staticmethod
     def _eval_approx_args(args, eps_at, fun, x, eps):
-        ## helper function for parallel execution with map()
-        ## for the case where 'fun' has additionals 'args' 
+        ## 'fun' has additional 'args' 
         if eps_at == 0:
             x_ = x
         elif eps_at <= len(x):
@@ -53,8 +54,7 @@ class EvalParallel:
     
     @staticmethod
     def _eval_approx(eps_at, fun, x, eps):
-        ## helper function for parallel execution with map()
-        ## for the case where 'fun' has no additionals 'args' 
+        ## 'fun' has no additional 'args' 
         if eps_at == 0:
             x_ = x
         elif eps_at <= len(x):
@@ -67,26 +67,24 @@ class EvalParallel:
     
     @staticmethod
     def _eval_fun_jac_args(args, which, fun, jac, x):
-        ## helper function for parallel execution with map()
-        ## for the case where 'fun' has additionals 'args' 
+        ## 'fun' and 'jec; have additional 'args' 
         if which == 0:
             return fun(x, *args)
         return np.array(jac(x, *args))
 
     @staticmethod
     def _eval_fun_jac(which, fun, jac, x):
-        ## helper function for parallel execution with map()
-        ## for the case where 'fun' has no additionals 'args' 
+        ## 'fun' and 'jac' have no additionals 'args' 
         if which == 0:
             return fun(x)
         return np.array(jac(x))
 
     def eval_parallel(self, x):
-        ## function to evaluate the function fun and jac in parallel
-        ## - if jac is None, the gradient is computed numerically
-        ## - if forward is True, the numerical gradient used
-        ##                      the forward difference method,
-        ##   otherwise, the central difference method is used
+        ## function to evaluate 'fun' and 'jac' in parallel
+        ## - if 'jac' is None, the gradient is computed numerically
+        ## - if 'forward' is True, the numerical gradient uses the
+        ##       forward difference method,
+        ##       otherwise, the central difference method is used
         x = np.array(x)
         if (self.x_val is not None and max(abs(self.x_val - x)) < 1e-10):
             if self.verbose:
@@ -99,7 +97,7 @@ class EvalParallel:
             else:
                 eps_at = range(2*len(x)+1)
                 
-            ## package 'self.args' into function because it cannot be
+            ## pack 'self.args' into function because it cannot be
             ## serialized by 'concurrent.futures.ProcessPoolExecutor()'
             if len(self.args) > 0:
                 ftmp = functools.partial(self._eval_approx_args, self.args)
@@ -191,11 +189,11 @@ def minimize_parallel(fun, x0,
 
     Note
     ----
-    When `jac=None` and `bounds` specified, it can be advisable to
+    When `jac=None` and `bounds` are specified, it can be advisable to
     increase the lower bounds by `eps` and decrease the upper bounds by `eps`
-    because the optimizer might try to evaluate fun(upper+eps).
-    `eps` is specified in `options` and defaults to `1e-8`, see
-    `scipy.optimize.minimize(method='L-BFGS-B')`.
+    because the optimizer might try to evaluate fun(upper+eps) and
+    fun(upper-eps). `eps` is specified in `options` and defaults to `1e-8`,
+    see `scipy.optimize.minimize(method='L-BFGS-B')`.
     
     References
     ----------
@@ -210,6 +208,9 @@ def minimize_parallel(fun, x0,
 
     Source code of Python module:
     https://github.com/florafauna/optimParallel-python
+
+    References for the L-BFGS-B optimization code are listed in the help
+    page of `scipy.optimize.minimize()`.
     
     Author
     ------
@@ -259,6 +260,107 @@ def minimize_parallel(fun, x0,
                    callback=callback,
                    options=options_used)
     return out
+
+def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
+                           bounds=None, m=10, factr=1e7, pgtol=1e-5,
+                           epsilon=1e-8, iprint=-1, maxfun=15000,
+                           maxiter=15000, disp=None, callback=None, maxls=20,
+                           parallel=None):
+
+    """
+    A parallel version of the L-BFGS-B optimizer `fmin_l_bfgs_b()`.
+    Using it can significantly reduce the optimization time.
+    For an objective function with p parameters the optimization
+    speed increases by about factor 1+p, when no analytic gradient
+    is specified and 1+p processor cores with sufficient memory
+    are available.
+    
+    Parameters
+    ----------
+    `func`, `x0`, `fprime`, `args`, `approx_grad`, `bounds`, `m`, `factr`,
+    `pgtol`, `epsilon`, `iprint`, `maxfun`, `maxiter`, `disp`, `callback`,
+    `maxls` are the same as in  `fmin_l_bfgs_b()`.
+    
+    Additional arguments controlling the parallel execution are:
+
+    parallel: dict
+        max_workers: The maximum number of processes that can be used to
+            execute the given calls. If None or not given then as many
+            worker processes will be created as the machine has processors.   
+
+        forward: bool. If `True` (default) the forward difference method is
+            used to approximate the gradient when `jac` is `None`.
+            If `False` the central difference method is used.  
+
+        verbose: bool. If `True` additional output is printed to the console.
+
+    Note
+    ----
+    When `approx_grad=True` and `bounds` are specified, it can be advisable to
+    increase the lower bounds by `eps` and decrease the upper bounds by `eps`
+    because the optimizer might try to evaluate fun(upper+eps) and if 'forward
+    is True, fun(upper-eps).
+    
+    References
+    ----------
+    When using the package please cite:
+    F. Gerber and R. Furrer (2019) optimParallel: An R package providing
+    a parallel version of the L-BFGS-B optimization method.
+    The R Journal, 11(1):352-358, 2019,
+    https://doi.org/10.32614/RJ-2019-030
+
+    R package with similar functionality:
+    https://CRAN.R-project.org/package=optimParallel
+
+    Source code of Python module:
+    https://github.com/florafauna/optimParallel-python
+
+    References for the L-BFGS-B optimization code are listed in the help
+    page of `scipy.optimize.minimize()`.
+    
+    Author
+    ------
+    Florian Gerber, flora.fauna.gerber@gmail.com
+    https://user.math.uzh.ch/gerber/index.html    
+    """
+
+    fun = func
+    if approx_grad:
+        jac = None
+    else:
+        assert fprime is not None, ("'func' returning the function AND its "
+                                    "gradient is not supported.\n"
+                                    "Please specify separate functions in "
+                                    "'func' and 'fprime'.")
+        jac = fprime
+
+    # build options
+    if disp is None:
+        disp = iprint
+    options = {'disp': disp,
+               'iprint': iprint,
+               'maxcor': m,
+               'ftol': factr * np.finfo(float).eps,
+               'gtol': pgtol,
+               'eps': epsilon,
+               'maxfun': maxfun,
+               'maxiter': maxiter,
+               'maxls': maxls}
+    
+    res = minimize_parallel(fun=fun, x0=x0, args=args, jac=jac, bounds=bounds,
+                            options=options, callback=callback,
+                            parallel=parallel)
+    d = {'grad': res['jac'],
+         'task': res['message'],
+         'funcalls': res['nfev'],
+         'nit': res['nit'],
+         'warnflag': res['status']}
+    f = res['fun']
+    x = res['x']
+    
+    return x, f, d
+    
+
 
 if __name__ == '__main__':
     import time
