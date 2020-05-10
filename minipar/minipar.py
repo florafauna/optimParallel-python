@@ -1,3 +1,4 @@
+
 """
 A parallel version of the L-BFGS-B optimizer of `scipy.optimize.minimize()`.
 Using it can significantly reduce the optimization time. For an objective
@@ -26,7 +27,6 @@ class EvalParallel:
         self.jac_in = jac
         self.eps = eps
         self.forward = forward
-        self.max_workers = max_workers
         self.verbose = verbose
         self.x_val = None
         self.fun_val = None
@@ -36,7 +36,13 @@ class EvalParallel:
         else:
             self.args = tuple(args)
         self.n = n
-            
+        self.executor = concurrent.futures.ProcessPoolExecutor(
+            max_workers=max_workers)
+
+    ## savely shutdown the parallel executor after all work is done.
+    def shutdown(self):
+        self.executor.shutdown()
+        
     ## static helper methods are used for parallel execution with map()
     ## Other
     @staticmethod
@@ -104,12 +110,10 @@ class EvalParallel:
             else:
                 ftmp = self._eval_approx
 
-            with concurrent.futures.ProcessPoolExecutor(
-                    max_workers=self.max_workers) as executor:
-                ret = executor.map(ftmp, eps_at,
-                                   itertools.repeat(self.fun_in),
-                                   itertools.repeat(x),
-                                   itertools.repeat(self.eps))
+            ret = self.executor.map(ftmp, eps_at,
+                                    itertools.repeat(self.fun_in),
+                                    itertools.repeat(x),
+                                    itertools.repeat(self.eps))
             ret = np.array(list(ret))
             self.fun_val = ret[0]
             if self.forward:
@@ -125,13 +129,11 @@ class EvalParallel:
         else:
             ftmp = self._eval_fun_jac
             
-        with concurrent.futures.ProcessPoolExecutor(
-                max_workers=self.max_workers) as executor:
-            ret = executor.map(ftmp, [0,1],
-                               itertools.repeat(self.fun_in),
-                               itertools.repeat(self.jac_in),
-                               itertools.repeat(x))
-            ret = list(ret)
+        ret = self.executor.map(ftmp, [0,1],
+                                itertools.repeat(self.fun_in),
+                                itertools.repeat(self.jac_in),
+                                itertools.repeat(x))
+        ret = list(ret)
         self.fun_val = ret[0]
         self.jac_val = ret[1]
         self.jac_val = self.jac_val.reshape((self.n,))
@@ -244,21 +246,22 @@ def minimize_parallel(fun, x0,
         assert isinstance(parallel, dict), "argument 'parallel' must be of type 'dict'"
         parallel_used.update(parallel)
             
-    funJac = EvalParallel(fun=fun,
-                          jac=jac,
-                          args=args,
-                          eps=options_used.get('eps'),
-                          max_workers=parallel_used.get('max_workers'),
-                          forward=parallel_used.get('forward'),
-                          verbose=parallel_used.get('verbose'),
-                          n=n)
-    out = minimize(fun=funJac.fun,
+    fun_jac = EvalParallel(fun=fun,
+                           jac=jac,
+                           args=args,
+                           eps=options_used.get('eps'),
+                           max_workers=parallel_used.get('max_workers'),
+                           forward=parallel_used.get('forward'),
+                           verbose=parallel_used.get('verbose'),
+                           n=n)
+    out = minimize(fun=fun_jac.fun,
                    x0=x0,
-                   jac=funJac.jac,
+                   jac=fun_jac.jac,
                    method='L-BFGS-B',
                    bounds=bounds,
                    callback=callback,
                    options=options_used)
+    fun_jac.shutdown()
     return out
 
 def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
@@ -350,142 +353,26 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
     res = minimize_parallel(fun=fun, x0=x0, args=args, jac=jac, bounds=bounds,
                             options=options, callback=callback,
                             parallel=parallel)
+    x = res['x']
+    f = res['fun']
     d = {'grad': res['jac'],
          'task': res['message'],
          'funcalls': res['nfev'],
          'nit': res['nit'],
          'warnflag': res['status']}
-    f = res['fun']
-    x = res['x']
     
     return x, f, d
     
 
 
 if __name__ == '__main__':
-    import time
-    ## a simple example
-    def f(x, a, b):
-        print('fn')
-        time.sleep(1)
-        return sum((x-a)**2)
+    def func0(x):
+        return sum((x-3)**2)
+    def fprime0(x):
+        return 2*(x-3)
+
+    o = minimize_parallel(func0, np.array([1,2]))
     
-    def g(x, a, b):
-        print('gr')
-        return 2*(x-a)
-
-    print(f(np.array([1,2]), a=1, b=2))
-    
-    o1 = minimize(fun=f, x0=np.array([10,20]), jac=g, args=(77,44),
-                  method='L-BFGS-B',
-                  options={'disp':False, 'maxls':2000})
-    print('\n', o1)
-    
-    o2 = minimize_parallel(fun=f, x0=np.array([10,20]), args=(77,44),
-                           options={'disp':False, 'maxls':2000},
-                           parallel={'max_workers': 3})
-    print('\n', o2)
-
-    
-    all(np.isclose(o1.jac, o2.jac, atol=1e-5))
-
-    def f(x, a, b):
-        assert any(x >= b), f'x >= {b:.3f} does not hold.'
-        print('fn')
-        time.sleep(.2)
-        return sum((x-a)**2)
-    
-    o1 = minimize(fun=f, x0=np.array([10,20]), args=(0, 1),
-                  method='L-BFGS-B',
-                  bounds=Bounds(lb=np.array([1,1]), ub=[np.inf,np.inf]))
-
-    o2 = minimize_parallel(fun=f, x0=np.array([10,20]), args=(0,1),
-                           bounds=Bounds(lb=np.array([1,1]), ub=[np.inf,np.inf]))
-    print(o1)
-
-
-    
-    def fun_2args0(x, a, b):
-        return sum((x-a)**2) + b
-    def jac_2args0(x, a, b):
-        return 2*(x-a)
-
-    # args = (1, 2)
-    # x0 = np.array([1, 2])
-    # eps = 0.01
-    # forward = False
-    # jac_flag = False
-    # fn_id = 0
-
-    def test_minimize_parallel_2args(args, x0, eps, forward, jac_flag, fn_id):
-
-        ## concurrent.futures.ProcessPoolExecutor() requires fun and jac to be globals
-        global fun, jac
-        
-        ## load parameters of scenario
-        fun=globals()['fun_2args' + str(fn_id)]
-        if not jac_flag:
-            jac=None
-        else:
-            jac=globals()['jac_2args' + str(fn_id)]
-        options={'eps': eps}
-        parallel={'forward': forward, 'verbose': False}
-        
-        
-        mp=minimize_parallel(fun=fun, x0=x0,
-                             args = args,
-                             jac=jac,
-                             # bounds,
-                             # tol,
-                             options=options,
-                        # callback,
-                             parallel=parallel)
-        m=minimize(fun=fun, x0=x0, method="L-BFGS-B",
-                   args=args,
-                   jac=jac,
-                   # bounds,
-                   # tol,
-                   options=options
-                   # callback
-        )
-        
-        
-        assert np.isclose(mp.fun, m.fun)
-        assert all(np.isclose(mp.jac, m.jac, atol=1e-5))
-        assert mp.success == m.success
-        assert all(np.isclose(mp.x, m.x))
-        return None
-    
-            
-    test_minimize_parallel_2args(args = (1,2),
-                                 x0 = np.array([1,2]),
-                                 eps = 0.01,
-                                 forward = True,
-                                 jac_flag = False,
-                                 fn_id=0)
-
- # --> why same numerical results and different 'success' value????
- # >>> mp
- #      fun: 2.0000247514030973
- # hess_inv: <2x2 LbfgsInvHessProduct with dtype=float64>
- #      jac: array([4.98743851e-05, 1.00247514e-02])
- #  message: b'ABNORMAL_TERMINATION_IN_LNSRCH'
- #     nfev: 42
- #      nit: 1
- #   status: 2
- #  success: False
- #        x: array([0.99502494, 1.00001238])
- # >>> m
- #      fun: 2.000024751403096
- # hess_inv: <2x2 LbfgsInvHessProduct with dtype=float64>
- #      jac: array([4.98743851e-05, 1.00247514e-02])
- #  message: b'CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH'
- #     nfev: 63
- #      nit: 2
- #   status: 0
- #  success: True
- #        x: array([0.99502494, 1.00001238])
-
-
-
+    o =fmin_l_bfgs_b_parallel(func0, x0 = np.array([1]), fprime=fprime0,
+                              approx_grad = False, m=[2])
 
