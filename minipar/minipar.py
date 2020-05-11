@@ -374,5 +374,5 @@ if __name__ == '__main__':
     o = minimize_parallel(func0, np.array([1,2]))
     
     o =fmin_l_bfgs_b_parallel(func0, x0 = np.array([1]), fprime=fprime0,
-                              approx_grad = False, m=[2])
+                              approx_grad = False, m=2)
 
