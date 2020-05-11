@@ -366,18 +366,3 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
          'warnflag': res['status']}
     
     return x, f, d
-    
-
-
-if __name__ == '__main__':
-    def func0(x):
-        return sum((x-3)**2)
-    def fprime0(x):
-        return 2*(x-3)
-
-    o = minimize_parallel(func0, np.array([1,2]))
-    
-    o =fmin_l_bfgs_b_parallel(func0, x0 = np.array([1]), fprime=fprime0,
-                              approx_grad = False, m=2)
-
-    print(o)

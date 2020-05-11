@@ -1,4 +1,4 @@
-## test test_fmin_l_bfgs_b_parallel
+## test fmin_l_bfgs_b_parallel()
 import pytest
 import itertools
 import numpy as np
@@ -20,6 +20,23 @@ def func_arg2(x, a, b):
     return sum((x-a)**2)
 def fprime_arg2(x, a, b):
     return 2*(x-a)
+
+def func_upper0(x, ub):
+    assert any(x <= ub), "x has to be smaller than upper bound" 
+    return sum((x-1)**2)
+   
+def fprime_upper0(x, ub):
+    assert any(x <= ub), "x has to be smaller than upper bound" 
+    return 2*(x-1)
+
+def func_lower0(x, ub):
+    assert any(x >= ub), "x has to be larger than lower bound" 
+    return sum((x-1)**2)
+   
+def fprime_lower0(x, ub):
+    assert any(x >= ub), "x has to be larger than lower bound" 
+    return 2*(x-1)
+
 
 ## helper function to test fmin_l_bfgs_b_parallel() against fmin_l_bfgs_b()
 def check_fmin(func_id, x0,
@@ -110,22 +127,28 @@ def test_fmin_args2(func_id, x0, args, approx_grad, max_workers, forward):
                max_workers=max_workers, forward=forward)
 
 
-## test bounds-------------- -----------------
-@pytest.mark.parametrize("func_id", [0])    
-@pytest.mark.parametrize("x0", [np.array([-9]), np.array([-9, 9])])
+## test bounds upper -------------------------------
+@pytest.mark.parametrize("func_id", ["_upper0"])    
+@pytest.mark.parametrize("x0", [np.array([-9]), np.array([-9, -99])])
 @pytest.mark.parametrize("approx_grad", [True, False])
 @pytest.mark.parametrize("forward", [True, False])
-@pytest.mark.parametrize("bl", [-10, -np.inf])
-@pytest.mark.parametrize("bu", [10, np.inf])
-def test_fmin_bounds(func_id, x0, approx_grad, forward, bl, bu):
-    check_fmin(func_id=func_id, x0=x0, approx_grad=approx_grad,
-               bounds=list(zip(itertools.repeat(bl, len(x0)),
-                               itertools.repeat(bu, len(x0)))),
+@pytest.mark.parametrize("bu", [np.inf, 5, 1, 0])
+def test_fmin_upper(func_id, x0, approx_grad, forward, bu):
+    check_fmin(func_id=func_id, x0=x0, args=(bu,), approx_grad=approx_grad,
+               bounds=list(zip(itertools.repeat(-np.inf, len(x0)),
+                               itertools.repeat(bu-1e-8, len(x0)))),
                forward=forward)
 
 
-
-
-    
-    
-    
+## test bounds lower -------------------------------
+@pytest.mark.parametrize("func_id", ["_lower0"])    
+@pytest.mark.parametrize("x0", [np.array([9]), np.array([9, 9])])
+@pytest.mark.parametrize("approx_grad", [True, False])
+@pytest.mark.parametrize("forward", [True, False])
+@pytest.mark.parametrize("bl", [5, 1, 0, -np.inf])
+def test_fmin_lower(func_id, x0, approx_grad, forward, bl):
+    check_fmin(func_id=func_id, x0=x0, args=(bl,), approx_grad=approx_grad,
+               bounds=list(zip(itertools.repeat(bl+1e-8, len(x0)),
+                               itertools.repeat(np.inf, len(x0)))),
+               forward=forward)
+   
