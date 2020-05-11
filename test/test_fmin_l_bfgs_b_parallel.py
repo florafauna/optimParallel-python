@@ -5,19 +5,23 @@ import numpy as np
 from scipy.optimize import fmin_l_bfgs_b
 from minipar.minipar import *
 
-## test functions without additional arguments ---------------------------
+## test objective functions ---------------------------
+## 'func0' and 'fprime' cannot be used as function names
 def func0(x):
     return sum((x-3)**2)
+
 def fprime0(x):
     return 2*(x-3)
 
 def func_arg1(x, a):
     return sum((x-a)**2)
+
 def fprime_arg1(x, a):
     return 2*(x-a)
 
 def func_arg2(x, a, b):
     return sum((x-a)**2)
+
 def fprime_arg2(x, a, b):
     return 2*(x-a)
 
@@ -51,9 +55,8 @@ def check_fmin(func_id, x0,
                ATOL=1e-5):
     __tracebackhide__ = TRACEBACKHIDE
 
-    global func, fprime
-
     ## load parameters of scenario
+    global func, fprime
     func = globals()['func' + str(func_id)]
     fprime = None if approx_grad else globals()['fprime' + str(func_id)]
     parallel = {'max_workers': max_workers, 'forward': forward, 'verbose': verbose}
@@ -80,7 +83,7 @@ def check_fmin(func_id, x0,
                                                              mp[2].get('grad')))
 
     if CHECK_STATUS and not ml[2].get('warnflag') == mp[2].get('warnflag'):
-        pytest.fail("jac different: ml = {}, mp = {}".format(ml[2].get('warnflag'),
+        pytest.fail("warnflag different: ml = {}, mp = {}".format(ml[2].get('warnflag'),
                                                              mp[2].get('warnflag')))
 
         
@@ -103,7 +106,7 @@ def test_fmin_args0(func_id, x0, approx_grad, m, factr, pgtol,
                maxiter=maxiter, disp=disp, maxls=maxls)
 
 
-## test functions with 1 extra arg and paralle options --------------------
+## test functions with 1 extra arg and parallel options --------------------
 @pytest.mark.parametrize("func_id", ["_arg1"])    
 @pytest.mark.parametrize("x0", [np.array([-1]), np.array([13, 221])])
 @pytest.mark.parametrize("args", [(3,), (-35,)])
@@ -115,7 +118,7 @@ def test_fmin_args1(func_id, x0, args, approx_grad, max_workers, forward):
                max_workers=max_workers, forward=forward)
 
 
-## test functions with 2 extra args and paralle options -----------------
+## test functions with 2 extra args and parallel options -----------------
 @pytest.mark.parametrize("func_id", ["_arg2"])    
 @pytest.mark.parametrize("x0", [np.array([-1]), np.array([13, 221])])
 @pytest.mark.parametrize("args", [(773, 66), (-3, 0)])
