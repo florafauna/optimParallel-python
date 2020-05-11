@@ -11,5 +11,7 @@ A similar extension of the L-BFGS-B optimizer exists in the R package *optimPara
 - https://CRAN.R-project.org/package=optimParallel 
 - https://doi.org/10.32614/RJ-2019-030
 
+An example is given in [example.py](example.py). 
+
 ### Contributions:
 Contributions via pull requests are welcome. 

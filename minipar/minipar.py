@@ -21,7 +21,8 @@ from scipy.optimize import minimize
 __all__ = ['minimize_parallel', 'fmin_l_bfgs_b_parallel']
 
 class EvalParallel:
-    def __init__(self, fun, jac=None, args=(), eps=1e-8, max_workers=None, 
+    def __init__(self, fun, jac=None, args=(), eps=1e-8,
+                 executor=concurrent.futures.ProcessPoolExecutor(), 
                  forward=True, verbose=False, n=1):
         self.fun_in = fun
         self.jac_in = jac
@@ -36,15 +37,9 @@ class EvalParallel:
         else:
             self.args = tuple(args)
         self.n = n
-        self.executor = concurrent.futures.ProcessPoolExecutor(
-            max_workers=max_workers)
-
-    ## savely shutdown the parallel executor after all work is done.
-    def shutdown(self):
-        self.executor.shutdown()
+        self.executor = executor 
         
     ## static helper methods are used for parallel execution with map()
-    ## Other
     @staticmethod
     def _eval_approx_args(args, eps_at, fun, x, eps):
         ## 'fun' has additional 'args' 
@@ -191,6 +186,9 @@ def minimize_parallel(fun, x0,
 
     Note
     ----
+    Because of the parallel overhead, `minimize_parallel()` is only faster than
+    `minimize()` for objective functions with an execution time of more than 0.1
+    seconds.
     When `jac=None` and `bounds` are specified, it can be advisable to
     increase the lower bounds by `eps` and decrease the upper bounds by `eps`
     because the optimizer might try to evaluate fun(upper+eps) and
@@ -245,23 +243,26 @@ def minimize_parallel(fun, x0,
     if not parallel is None: 
         assert isinstance(parallel, dict), "argument 'parallel' must be of type 'dict'"
         parallel_used.update(parallel)
-            
-    fun_jac = EvalParallel(fun=fun,
-                           jac=jac,
-                           args=args,
-                           eps=options_used.get('eps'),
-                           max_workers=parallel_used.get('max_workers'),
-                           forward=parallel_used.get('forward'),
-                           verbose=parallel_used.get('verbose'),
-                           n=n)
-    out = minimize(fun=fun_jac.fun,
-                   x0=x0,
-                   jac=fun_jac.jac,
-                   method='L-BFGS-B',
-                   bounds=bounds,
-                   callback=callback,
-                   options=options_used)
-    fun_jac.shutdown()
+
+    with concurrent.futures.ProcessPoolExecutor(max_workers=
+                                  parallel_used.get('max_workers'))as executor:
+        fun_jac = EvalParallel(fun=fun,
+                               jac=jac,
+                               args=args,
+                               eps=options_used.get('eps'),
+                               executor=executor,
+                               forward=parallel_used.get('forward'),
+                               verbose=parallel_used.get('verbose'),
+                               n=n)
+        out = minimize(fun=fun_jac.fun,
+                       x0=x0,
+                       jac=fun_jac.jac,
+                       method='L-BFGS-B',
+                       bounds=bounds,
+                       callback=callback,
+                       options=options_used)
+
+    out.hess_inv = out.hess_inv * np.identity(n)
     return out
 
 def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
@@ -299,6 +300,9 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
 
     Note
     ----
+    Because of the parallel overhead, `minimize_parallel()` is only faster than
+    `minimize()` for objective functions with an execution time of more than 0.1
+    seconds.
     When `approx_grad=True` and `bounds` are specified, it can be advisable to
     increase the lower bounds by `eps` and decrease the upper bounds by `eps`
     because the optimizer might try to evaluate fun(upper+eps) and if 'forward
@@ -374,5 +378,6 @@ if __name__ == '__main__':
     o = minimize_parallel(func0, np.array([1,2]))
     
     o =fmin_l_bfgs_b_parallel(func0, x0 = np.array([1]), fprime=fprime0,
-                              approx_grad = False, m=[2])
+                              approx_grad = False, m=2)
 
+    print(o)
