@@ -22,12 +22,13 @@ __all__ = ['minimize_parallel', 'fmin_l_bfgs_b_parallel']
 
 class EvalParallel:
     def __init__(self, fun, jac=None, args=(), eps=1e-8, max_workers=None, 
-                 forward=True, verbose=False, n=1):
+                 forward=True, verbose=False, loginfo=False, n=1):
         self.fun_in = fun
         self.jac_in = jac
         self.eps = eps
         self.forward = forward
         self.verbose = verbose
+        self.loginfo = loginfo
         self.x_val = None
         self.fun_val = None
         self.jac_val = None
@@ -188,6 +189,10 @@ def minimize_parallel(fun, x0,
             If `False` the central difference method is used.  
 
         verbose: bool. If `True` additional output is printed to the console.
+        
+        loginfo: bool. If `True` additional log information containing the
+            evaluated parameters as well as return values of
+            fun and jac is returned.
 
     Note
     ----
@@ -241,7 +246,7 @@ def minimize_parallel(fun, x0,
         else:
             options_used['gtol'] = tol
 
-    parallel_used = {'max_workers': None, 'forward': True, 'verbose': False}
+    parallel_used = {'max_workers': None, 'forward': True, 'verbose': False, 'loginfo': False}
     if not parallel is None: 
         assert isinstance(parallel, dict), "argument 'parallel' must be of type 'dict'"
         parallel_used.update(parallel)
@@ -253,6 +258,7 @@ def minimize_parallel(fun, x0,
                            max_workers=parallel_used.get('max_workers'),
                            forward=parallel_used.get('forward'),
                            verbose=parallel_used.get('verbose'),
+                           loginfo=parallel_used.get('loginfo'),
                            n=n)
     out = minimize(fun=fun_jac.fun,
                    x0=x0,
