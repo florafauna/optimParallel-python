@@ -276,7 +276,7 @@ def minimize_parallel(fun, x0,
         time_start = time.time()
      
     with concurrent.futures.ProcessPoolExecutor(max_workers=
-                         parallel_used.get('max_workers'))as executor:
+                         parallel_used.get('max_workers')) as executor:
         fun_jac = EvalParallel(fun=fun,
                                jac=jac,
                                args=args,
