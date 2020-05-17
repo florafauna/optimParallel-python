@@ -4,7 +4,7 @@ A parallel computing interface to the L-BFGS-B optimizer.
 A parallel version of the L-BFGS-B optimizer of `scipy.optimize.minimize()`.
 Using it can significantly reduce the optimization time. For an objective
 function with an execution time of more than 0.1 seconds and p parameters
-the optimization speed increases by up to factor 1+p, when no analytic
+the optimization speed increases by up to factor 1+p when no analytic
 gradient is specified and 1+p processor cores with sufficient memory
 are available. 
 

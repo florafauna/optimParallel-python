@@ -4,6 +4,7 @@ from scipy.optimize import minimize
 import numpy as np
 import time
 from timeit import default_timer as timer
+import matplotlib.pyplot as plt
 
 ## objective function 
 def f(x, sleep_secs=.5):
@@ -32,9 +33,24 @@ o1_end = timer()
 o2_start = timer()
 _ = minimize(fun=f, x0=x0, args=.5)
 o2_end = timer()
-
 print("Time parallel {:2.2}\nTime standard {:2.2} ".
       format(o1_end - o1_start, o2_end - o2_start))
+
+## loginfo -------------------------------------
+o1 = minimize_parallel(fun=f, x0=x0, args=.5, parallel={'loginfo': True})
+o1.loginfo['x']
+o1.loginfo['fun']
+o1.loginfo['jac']
+
+x_0 = [i[0] for i in o1.loginfo['x']]
+x_1 = [i[1] for i in o1.loginfo['x']]
+plt.plot(x_0, x_1, '-o')
+for i in range(len(x_0)):
+    plt.text(x_0[i]+.2, x_1[i], 'f = {a:3.3f}'.format(a=o1.loginfo['fun'][i]))
+plt.xlabel('x_0')
+plt.ylabel('x_1')
+plt.xlim(right=x_0[-1]+1)
+plt.show()
 
 ## example with gradient -----------------------
 def g(x, sleep_secs=.5):

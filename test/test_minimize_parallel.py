@@ -123,6 +123,28 @@ def test_minimize_args0(fun_id, x0, approx_grad, maxcor, ftol, gtol,
                    maxiter=maxiter, disp=disp, maxls=maxls)
 
 
+## test if loginfo=True returns somthing --------------------
+@pytest.mark.parametrize("x0", [np.array([-1]), np.array([13, 221])])
+def test_minimize_loginfo(x0):
+    o = minimize_parallel(fun0, x0=x0, parallel={'loginfo': True})
+    assert hasattr(o, 'loginfo')
+    assert type(o.loginfo) is dict
+    assert type(o.loginfo['x']) is list
+    assert type(o.loginfo['fun']) is list
+    assert type(o.loginfo['jac']) is list
+    if len(x0)>1:
+        assert len(o.loginfo['x'][0]) == len(x0)
+        assert len(o.loginfo['jac'][0]) == len(x0)
+
+## test if time=True returns somthing --------------------
+@pytest.mark.parametrize("x0", [np.array([-1]), np.array([13, 221])])
+def test_minimize_time(x0):
+    o = minimize_parallel(fun0, x0=x0, parallel={'time': True})
+    assert hasattr(o, 'time')
+    assert type(o.time) is dict
+    assert type(o.time['elapsed']) is float
+    assert type(o.time['step']) is float
+    
 ## test functions with 1 extra arg and parallel options --------------------
 @pytest.mark.parametrize("fun_id", ["_arg1"])    
 @pytest.mark.parametrize("x0", [np.array([-1]), np.array([13, 221])])
