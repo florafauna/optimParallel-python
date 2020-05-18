@@ -82,7 +82,6 @@ def check_minimize(fun_id, x0,
                     CHECK_X=True, CHECK_FUN=True, CHECK_JAC=True,
                     CHECK_STATUS=True, TRACEBACKHIDE=True,
                     ATOL=1e-5):
-
     """Helper function to minimize_parallel() against minimize()."""
     __tracebackhide__ = TRACEBACKHIDE
 
