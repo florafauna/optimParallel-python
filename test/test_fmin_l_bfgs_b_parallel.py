@@ -6,7 +6,9 @@ from scipy.optimize import fmin_l_bfgs_b
 from minipar.minipar import fmin_l_bfgs_b_parallel
 
 ## test objective functions ---------------------------
-## 'func0' and 'fprime' cannot be used as function names
+## 'func' and 'fprime' cannot be used as function names
+func, fprime = None, None
+
 def func0(x):
     return sum((x-3)**2)
 
@@ -54,7 +56,6 @@ def check_fmin(func_id, x0,
                CHECK_STATUS=True, TRACEBACKHIDE=True,
                ATOL=1e-5):
     """Helper function to test fmin_l_bfgs_b_parallel() against fmin_l_bfgs_b()."""
-
     __tracebackhide__ = TRACEBACKHIDE
 
     ## load parameters of scenario

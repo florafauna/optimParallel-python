@@ -7,6 +7,8 @@ from minipar.minipar import minimize_parallel
 
 ## test objective functions ---------------------------
 ## minimize_parallel() expects 'fun' and 'jac' to be global.
+fun, jac = None, None
+
 ## we reserve the names 'fun' and 'jac' for them.
 def fun0(x):
     return sum((x-3)**2)
@@ -48,8 +50,7 @@ def compare_minimize(x0, args=(), bounds=None, tol=None,
                      CHECK_X=True, CHECK_FUN=True, CHECK_JAC=True,
                      CHECK_STATUS=True, TRACEBACKHIDE=True,
                      ATOL=1e-5):
-    """helper function to test minimize_parallel() against minimize()"""
-
+    """Helper function to test minimize_parallel() against minimize()."""
     __tracebackhide__ = TRACEBACKHIDE
 
     ml = minimize(fun=fun, x0=x0, method="L-BFGS-B", args=args, jac=jac,
@@ -83,7 +84,6 @@ def check_minimize(fun_id, x0,
                     ATOL=1e-5):
 
     """Helper function to minimize_parallel() against minimize()."""
-
     __tracebackhide__ = TRACEBACKHIDE
 
     ## load parameters of scenario
