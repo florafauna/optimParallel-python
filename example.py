@@ -6,7 +6,7 @@ import time
 from timeit import default_timer as timer
 import matplotlib.pyplot as plt
 
-## objective function 
+## objective function
 def f(x, sleep_secs=.5):
     print('fn')
     time.sleep(sleep_secs)

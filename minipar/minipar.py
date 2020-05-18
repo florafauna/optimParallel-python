@@ -46,7 +46,7 @@ class EvalParallel:
     ## static helper methods are used for parallel execution with map()
     @staticmethod
     def _eval_approx_args(args, eps_at, fun, x, eps):
-        ## 'fun' has additional 'args' 
+        ## 'fun' has additional 'args'
         if eps_at == 0:
             x_ = x
         elif eps_at <= len(x):
@@ -268,7 +268,7 @@ def minimize_parallel(fun, x0,
 
     parallel_used = {'max_workers': None, 'forward': True, 'verbose': False,
                      'loginfo': False, 'time': False}
-    if not parallel is None: 
+    if not parallel is None:
         assert isinstance(parallel, dict), "argument 'parallel' must be of type 'dict'"
         parallel_used.update(parallel)
 
@@ -331,15 +331,24 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
     Additional arguments controlling the parallel execution are:
 
     parallel: dict
-        max_workers: The maximum number of processes that can be used to
-            execute the given calls. If None or not given then as many
-            worker processes will be created as the machine has processors.   
-
-        forward: bool. If `True` (default) the forward difference method is
+        max_workers: The maximum number of processes that can be
+            used to execute the given calls. The value is passed
+            to the `max_workers` argument of
+            `concurrent.futures.ProcessPoolExecutor()`.
+    
+        forward: bool. If `True` (default), the forward difference method is
             used to approximate the gradient when `jac` is `None`.
             If `False` the central difference method is used.  
 
-        verbose: bool. If `True` additional output is printed to the console.
+        verbose: bool. If `True`, additional output is printed to the console.
+        
+        loginfo: bool. If `True`, additional log information containing the
+            evaluated parameters as well as return values of
+            fun and jac is returned.
+            
+        time: bool. If `True`, a dict containing the elapsed time (seconds)
+            and the elapsed time per step (evaluation of one 'fun' call and
+            its jacobian) is returned.
 
     Note
     ----
@@ -373,7 +382,7 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
     Florian Gerber, flora.fauna.gerber@gmail.com
     https://user.math.uzh.ch/gerber/index.html    
 
-    Lewis Blake (contributions to the 'loginfo' and 'time' features). 
+    Lewis Blake (contributions to the 'loginfo' and 'time' features).
     """
 
     fun = func

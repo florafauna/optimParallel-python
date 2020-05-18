@@ -128,10 +128,10 @@ def test_minimize_args0(fun_id, x0, approx_grad, maxcor, ftol, gtol,
 def test_minimize_loginfo(x0):
     o = minimize_parallel(fun0, x0=x0, parallel={'loginfo': True})
     assert hasattr(o, 'loginfo')
-    assert type(o.loginfo) is dict
-    assert type(o.loginfo['x']) is np.ndarray
-    assert type(o.loginfo['fun']) is np.ndarray
-    assert type(o.loginfo['jac']) is np.ndarray
+    assert isinstance(o.loginfo, dict)
+    assert isinstance(o.loginfo['x'], np.ndarray) 
+    assert isinstance(o.loginfo['fun'], np.ndarray) 
+    assert isinstance(o.loginfo['jac'], np.ndarray) 
     nsteps = o.loginfo['x'].shape[0]
     assert o.loginfo['x'].shape == (nsteps, len(x0)) 
     assert o.loginfo['fun'].shape == (nsteps, 1) 
@@ -142,9 +142,9 @@ def test_minimize_loginfo(x0):
 def test_minimize_time(x0):
     o = minimize_parallel(fun0, x0=x0, parallel={'time': True})
     assert hasattr(o, 'time')
-    assert type(o.time) is dict
-    assert type(o.time['elapsed']) is float
-    assert type(o.time['step']) is float
+    assert isinstance(o.time, dict)
+    assert isinstance(o.time['elapsed'], float)
+    assert isinstance(o.time['step'], float)
     
 ## test functions with 1 extra arg and parallel options --------------------
 @pytest.mark.parametrize("fun_id", ["_arg1"])    
