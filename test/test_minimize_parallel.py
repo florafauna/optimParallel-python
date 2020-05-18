@@ -129,12 +129,13 @@ def test_minimize_loginfo(x0):
     o = minimize_parallel(fun0, x0=x0, parallel={'loginfo': True})
     assert hasattr(o, 'loginfo')
     assert type(o.loginfo) is dict
-    assert type(o.loginfo['x']) is list
-    assert type(o.loginfo['fun']) is list
-    assert type(o.loginfo['jac']) is list
-    if len(x0)>1:
-        assert len(o.loginfo['x'][0]) == len(x0)
-        assert len(o.loginfo['jac'][0]) == len(x0)
+    assert type(o.loginfo['x']) is np.ndarray
+    assert type(o.loginfo['fun']) is np.ndarray
+    assert type(o.loginfo['jac']) is np.ndarray
+    nsteps = o.loginfo['x'].shape[0]
+    assert o.loginfo['x'].shape == (nsteps, len(x0)) 
+    assert o.loginfo['fun'].shape == (nsteps, 1) 
+    assert o.loginfo['jac'].shape == (nsteps, len(x0)) 
 
 ## test if time=True returns somthing --------------------
 @pytest.mark.parametrize("x0", [np.array([-1]), np.array([13, 221])])

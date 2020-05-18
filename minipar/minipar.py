@@ -297,7 +297,8 @@ def minimize_parallel(fun, x0,
     out.hess_inv = out.hess_inv * np.identity(n)
 
     if parallel_used.get('loginfo'):
-        out.loginfo = fun_jac.info
+        out.loginfo = {k: (lambda x: np.array(x) if isinstance(x[0], list)
+                           else np.array(x)[np.newaxis].T)(v) for k, v in fun_jac.info.items()}
 
     if parallel_used.get('time'):
         time_end = time.time()
