@@ -3,7 +3,7 @@ import pytest
 import itertools
 import numpy as np
 from scipy.optimize import fmin_l_bfgs_b
-from minipar.minipar import *
+from minipar.minipar import fmin_l_bfgs_b_parallel
 
 ## test objective functions ---------------------------
 ## 'func0' and 'fprime' cannot be used as function names
@@ -28,7 +28,7 @@ def fprime_arg2(x, a, b):
 def func_upper0(x, ub):
     assert any(x <= ub), "x has to be smaller than upper bound"
     return sum((x-1)**2)
-   
+
 def fprime_upper0(x, ub):
     assert any(x <= ub), "x has to be smaller than upper bound"
     return 2*(x-1)
@@ -36,13 +36,13 @@ def fprime_upper0(x, ub):
 def func_lower0(x, ub):
     assert any(x >= ub), "x has to be larger than lower bound"
     return sum((x-1)**2)
-   
+
 def fprime_lower0(x, ub):
     assert any(x >= ub), "x has to be larger than lower bound"
     return 2*(x-1)
 
 
-## helper function to test fmin_l_bfgs_b_parallel() against fmin_l_bfgs_b()
+
 def check_fmin(func_id, x0,
                args=(),
                approx_grad=0,
@@ -53,6 +53,8 @@ def check_fmin(func_id, x0,
                CHECK_X=True, CHECK_FUN=True, CHECK_JAC=True,
                CHECK_STATUS=True, TRACEBACKHIDE=True,
                ATOL=1e-5):
+    """Helper function to test fmin_l_bfgs_b_parallel() against fmin_l_bfgs_b()."""
+
     __tracebackhide__ = TRACEBACKHIDE
 
     ## load parameters of scenario
@@ -62,13 +64,13 @@ def check_fmin(func_id, x0,
     parallel = {'max_workers': max_workers, 'forward': forward, 'verbose': verbose}
 
     ml = fmin_l_bfgs_b(func=func, x0=x0, fprime=fprime, args=args,
-                       approx_g2rad=approx_grad, bounds=bounds, m=m, factr=factr,
-                       pgtol=pgtol, epsilon=epsilon, iprint=iprint, 
+                       approx_grad=approx_grad, bounds=bounds, m=m, factr=factr,
+                       pgtol=pgtol, epsilon=epsilon, iprint=iprint,
                        maxiter=maxiter, disp=disp, callback=None, maxls=maxls)
-    
+
     mp = fmin_l_bfgs_b_parallel(func=func, x0=x0, fprime=fprime, args=args,
                                 approx_grad=approx_grad, bounds=bounds, m=m, factr=factr,
-                                pgtol=pgtol, epsilon=epsilon, iprint=iprint, 
+                                pgtol=pgtol, epsilon=epsilon, iprint=iprint,
                                 maxiter=maxiter, disp=disp, callback=None, maxls=maxls,
                                 parallel=parallel)
 
@@ -86,9 +88,9 @@ def check_fmin(func_id, x0,
         pytest.fail("warnflag different: ml = {}, mp = {}".format(ml[2].get('warnflag'),
                                                              mp[2].get('warnflag')))
 
-        
+
 ## test options ----------------------------
-@pytest.mark.parametrize("func_id", [0])    
+@pytest.mark.parametrize("func_id", [0])
 @pytest.mark.parametrize("x0", [np.array([1]), np.array([1, 2])])
 @pytest.mark.parametrize("approx_grad", [True, False])
 @pytest.mark.parametrize("m", [2, 10])
@@ -154,4 +156,4 @@ def test_fmin_lower(func_id, x0, approx_grad, forward, bl):
                bounds=list(zip(itertools.repeat(bl+1e-8, len(x0)),
                                itertools.repeat(np.inf, len(x0)))),
                forward=forward)
-   
+

@@ -8,7 +8,7 @@ with sufficient memory are available.
 
 Function
 --------
-- minimize_parallel : parallel version of `scipy.optimize.minimize()`. 
+- minimize_parallel : parallel version of `scipy.optimize.minimize()`.
 """
 
 import warnings
@@ -18,12 +18,12 @@ import itertools
 import numpy as np
 from scipy.optimize import minimize
 import time
-    
+
 __all__ = ['minimize_parallel', 'fmin_l_bfgs_b_parallel']
 
 class EvalParallel:
     def __init__(self, fun, jac=None, args=(), eps=1e-8,
-                 executor=concurrent.futures.ProcessPoolExecutor(), 
+                 executor=concurrent.futures.ProcessPoolExecutor(),
                  forward=True, loginfo=False, verbose=False, n=1):
         self.fun_in = fun
         self.jac_in = jac
@@ -43,6 +43,7 @@ class EvalParallel:
         if self.loginfo:
             self.info = {k:[] for k in ['x', 'fun', 'jac']}
         self.np_precision = np.finfo(float).eps
+
     ## static helper methods are used for parallel execution with map()
     @staticmethod
     def _eval_approx_args(args, eps_at, fun, x, eps):
@@ -56,10 +57,10 @@ class EvalParallel:
             x_ = x.copy()
             x_[eps_at-1-len(x)] -= eps
         return fun(x_, *args)
-    
+
     @staticmethod
     def _eval_approx(eps_at, fun, x, eps):
-        ## 'fun' has no additional 'args' 
+        ## 'fun' has no additional 'args'
         if eps_at == 0:
             x_ = x
         elif eps_at <= len(x):
@@ -69,17 +70,17 @@ class EvalParallel:
             x_ = x.copy()
             x_[eps_at-1-len(x)] -= eps
         return fun(x_)
-    
+
     @staticmethod
     def _eval_fun_jac_args(args, which, fun, jac, x):
-        ## 'fun' and 'jec; have additional 'args' 
+        ## 'fun' and 'jec; have additional 'args'
         if which == 0:
             return fun(x, *args)
         return np.array(jac(x, *args))
 
     @staticmethod
     def _eval_fun_jac(which, fun, jac, x):
-        ## 'fun' and 'jac' have no additionals 'args' 
+        ## 'fun' and 'jac' have no additionals 'args'
         if which == 0:
             return fun(x)
         return np.array(jac(x))
@@ -102,7 +103,7 @@ class EvalParallel:
                     eps_at = range(len(x)+1)
                 else:
                     eps_at = range(2*len(x)+1)
-                
+
                 ## pack 'self.args' into function because otherwise it
                 ## cannot be serialized by
                 ## 'concurrent.futures.ProcessPoolExecutor()'
@@ -124,12 +125,12 @@ class EvalParallel:
                                 - ret[(len(x)+1):2*len(x)+1]) / (2*self.eps)
 
             # 'jac' function is not None
-            else: 
+            else:
                 if len(self.args) > 0:
                     ftmp = functools.partial(self._eval_fun_jac_args, self.args)
                 else:
                     ftmp = self._eval_fun_jac
-                
+
                 ret = self.executor.map(ftmp, [0,1],
                                         itertools.repeat(self.fun_in),
                                         itertools.repeat(self.jac_in),
@@ -149,20 +150,20 @@ class EvalParallel:
                     self.info['x'].append(self.x_val[0])
                     self.info['jac'].append(self.jac_val[0])
         return None
-                    
+
     def fun(self, x):
         self.eval_parallel(x=x)
         if self.verbose:
             print('fun(' + str(x) + ') = ' + str(self.fun_val))
         return self.fun_val
-    
+
     def jac(self, x):
         self.eval_parallel(x=x)
         if self.verbose:
             print('jac(' + str(x)+ ') = ' + str(self.jac_val))
         return self.jac_val
 
-    
+
 def minimize_parallel(fun, x0,
                       args=(),
                       jac=None,
@@ -179,14 +180,14 @@ def minimize_parallel(fun, x0,
     of more than 0.1 seconds and p parameters the optimization speed
     increases by about factor 1+p when no analytic gradient is specified
     and 1+p processor cores with sufficient memory are available.
-    
+
     Parameters
     ----------
     `fun`, `x0`, `args`, `jac`, `bounds`, `tol`, `options`, and `callback`
     are the same as the corresponding arguments of `scipy.optimize.minimize()`.
     See the documentation of `scipy.optimize.minimize()` and
     `scipy.optimize.minimize(method='L-BFGS-B')` for more information.
-    
+
     Additional arguments controlling the parallel execution are:
 
     parallel: dict
@@ -194,17 +195,17 @@ def minimize_parallel(fun, x0,
             used to execute the given calls. The value is passed
             to the `max_workers` argument of
             `concurrent.futures.ProcessPoolExecutor()`.
-    
+
         forward: bool. If `True` (default), the forward difference method is
             used to approximate the gradient when `jac` is `None`.
-            If `False` the central difference method is used.  
+            If `False` the central difference method is used.
 
         verbose: bool. If `True`, additional output is printed to the console.
-        
+
         loginfo: bool. If `True`, additional log information containing the
             evaluated parameters as well as return values of
             fun and jac is returned.
-            
+
         time: bool. If `True`, a dict containing the elapsed time (seconds)
             and the elapsed time per step (evaluation of one 'fun' call and
             its jacobian) is returned.
@@ -219,7 +220,7 @@ def minimize_parallel(fun, x0,
     because the optimizer might try to evaluate fun(upper+eps) and
     fun(upper-eps). `eps` is specified in `options` and defaults to `1e-8`,
     see `scipy.optimize.minimize(method='L-BFGS-B')`.
-    
+
     References
     ----------
     When using the package please cite:
@@ -236,27 +237,27 @@ def minimize_parallel(fun, x0,
 
     References for the L-BFGS-B optimization code are listed in the help
     page of `scipy.optimize.minimize()`.
-    
+
     Authors
     -------
     Florian Gerber, flora.fauna.gerber@gmail.com
-    https://user.math.uzh.ch/gerber/index.html    
+    https://user.math.uzh.ch/gerber/index.html
 
-    Lewis Blake (contributions to the 'loginfo' and 'time' features). 
+    Lewis Blake (contributions to the 'loginfo' and 'time' features).
     """
-    
+
     ## get length of x0
     try:
         n = len(x0)
-    except:
+    except Exception:
         n = 1
-        
+
     ## update default options with specified options
     options_used = {'disp': None, 'maxcor': 10,
                     'ftol': 2.220446049250313e-09, 'gtol': 1e-05,
                     'eps': 1e-08, 'maxfun': 15000,
                     'maxiter': 15000, 'iprint': -1, 'maxls': 20}
-    if not options is None: 
+    if not options is None:
         assert isinstance(options, dict), "argument 'options' must be of type 'dict'"
         options_used.update(options)
     if not tol is None:
@@ -274,7 +275,7 @@ def minimize_parallel(fun, x0,
 
     if parallel_used.get('time'):
         time_start = time.time()
-     
+
     with concurrent.futures.ProcessPoolExecutor(max_workers=
                          parallel_used.get('max_workers')) as executor:
         fun_jac = EvalParallel(fun=fun,
@@ -293,7 +294,7 @@ def minimize_parallel(fun, x0,
                        bounds=bounds,
                        callback=callback,
                        options=options_used)
-    
+
     out.hess_inv = out.hess_inv * np.identity(n)
 
     if parallel_used.get('loginfo'):
@@ -304,7 +305,7 @@ def minimize_parallel(fun, x0,
         time_end = time.time()
         out.time = {'elapsed': time_end - time_start,
                     'step': (time_end - time_start) / out.nfev}
-          
+
     return out
 
 
@@ -321,13 +322,13 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
     0.1 seconds and p parameters the optimization speed increases
     by about factor 1+p when no analytic gradient is specified
     and 1+p processor cores with sufficient memory are available.
-    
+
     Parameters
     ----------
     `func`, `x0`, `fprime`, `args`, `approx_grad`, `bounds`, `m`, `factr`,
     `pgtol`, `epsilon`, `iprint`, `maxfun`, `maxiter`, `disp`, `callback`,
     `maxls` are the same as in  `fmin_l_bfgs_b()`.
-    
+
     Additional arguments controlling the parallel execution are:
 
     parallel: dict
@@ -335,17 +336,17 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
             used to execute the given calls. The value is passed
             to the `max_workers` argument of
             `concurrent.futures.ProcessPoolExecutor()`.
-    
+
         forward: bool. If `True` (default), the forward difference method is
             used to approximate the gradient when `jac` is `None`.
-            If `False` the central difference method is used.  
+            If `False` the central difference method is used.
 
         verbose: bool. If `True`, additional output is printed to the console.
-        
+
         loginfo: bool. If `True`, additional log information containing the
             evaluated parameters as well as return values of
             fun and jac is returned.
-            
+
         time: bool. If `True`, a dict containing the elapsed time (seconds)
             and the elapsed time per step (evaluation of one 'fun' call and
             its jacobian) is returned.
@@ -359,7 +360,7 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
     increase the lower bounds by `eps` and decrease the upper bounds by `eps`
     because the optimizer might try to evaluate fun(upper+eps) and if 'forward
     is True, fun(upper-eps).
-    
+
     References
     ----------
     When using the package please cite:
@@ -376,11 +377,11 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
 
     References for the L-BFGS-B optimization code are listed in the help
     page of `scipy.optimize.minimize()`.
-    
+
     Authors
     -------
     Florian Gerber, flora.fauna.gerber@gmail.com
-    https://user.math.uzh.ch/gerber/index.html    
+    https://user.math.uzh.ch/gerber/index.html
 
     Lewis Blake (contributions to the 'loginfo' and 'time' features).
     """
@@ -407,7 +408,7 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
                'maxfun': maxfun,
                'maxiter': maxiter,
                'maxls': maxls}
-    
+
     res = minimize_parallel(fun=fun, x0=x0, args=args, jac=jac, bounds=bounds,
                             options=options, callback=callback,
                             parallel=parallel)
@@ -418,5 +419,5 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
          'funcalls': res['nfev'],
          'nit': res['nit'],
          'warnflag': res['status']}
-    
+
     return x, f, d

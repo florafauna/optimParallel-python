@@ -1,4 +1,5 @@
-""" Example of `minimize_parallel()` """
+"""Example of `minimize_parallel()`."""
+
 from minipar.minipar import minimize_parallel
 from scipy.optimize import minimize
 import numpy as np
@@ -16,7 +17,7 @@ def f(x, sleep_secs=.5):
 x0 = np.array([10,20])
 
 ## minimze with parallel evaluation of 'fun' and
-## its approximate gradient. 
+## its approximate gradient.
 o1 = minimize_parallel(fun=f, x0=x0, args=.5)
 print(o1)
 
@@ -38,13 +39,13 @@ print("Time parallel {:2.2}\nTime standard {:2.2} ".
 
 ## loginfo -------------------------------------
 o1 = minimize_parallel(fun=f, x0=x0, args=.5, parallel={'loginfo': True})
-o1.loginfo['x']
-o1.loginfo['fun']
-o1.loginfo['jac']
+print(o1.loginfo['x'])
+print(o1.loginfo['fun'])
+print(o1.loginfo['jac'])
 
 x1, x2 = o1.loginfo['x'][:,0], o1.loginfo['x'][:,1]
 plt.plot(x1, x2, '-o')
-for i in range(len(x1)):
+for i, _ in enumerate(x1):
     plt.text(x1[i]+.2, x2[i], 'f = {a:3.3f}'.format(a=o1.loginfo['fun'][i,0]))
 plt.xlabel('x[0]')
 plt.ylabel('x[1]')
