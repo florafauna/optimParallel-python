@@ -63,7 +63,7 @@ More examples are given in [example.py](https://github.com/florafauna/optimParal
 
 ## Author
 
-*   Florian Gerber, <flora.fauna.gerber@gmail.com>, [web page](https://user.math.uzh.ch/gerber)
+*   Florian Gerber, <flora.fauna.gerber@gmail.com>, [web page](https://user.math.uzh.ch/gerber).
 
 ### Contributions
 Contributions via pull requests are welcome.
