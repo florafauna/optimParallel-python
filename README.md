@@ -46,10 +46,10 @@ o1 = minimize_parallel(fun=f, x0=x0, args=.5)
 print(o1)
 
 ## test against scipy.optimize.minimize()
-o2 = minimize(fun=f, x0=x0, args=.5)
-print(all(np.isclose(o1.x, o2.x, atol=1e-5)),
-      np.isclose(o1.fun, o2.fun, atol=1e-5),
-      all(np.isclose(o1.jac, o2.jac, atol=1e-5)))
+o2 = minimize(fun=f, x0=x0, args=.5, method='L-BFGS-B')
+print(all(np.isclose(o1.x, o2.x, atol=1e-10)),
+      np.isclose(o1.fun, o2.fun, atol=1e-10),
+      all(np.isclose(o1.jac, o2.jac, atol=1e-10)))
 ```
 
 The evaluated `x` values, `fun(x)`, and `jac(x)` can be returned:
@@ -68,4 +68,4 @@ Contributions via pull requests are welcome.
 
 ## Contributors:
 
-*   Lewis Blake contributed code for the 'loginfo' and 'time' features.
+*   Lewis Blake: code for the 'loginfo' and 'time' features.

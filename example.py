@@ -20,18 +20,18 @@ x0 = np.array([10,20])
 o1 = minimize_parallel(fun=f, x0=x0, args=.5)
 print(o1)
 
-## test against scipy.optimize.minimize()
-o2 = minimize(fun=f, x0=x0, args=.5)
-print(all(np.isclose(o1.x, o2.x, atol=1e-5)),
-      np.isclose(o1.fun, o2.fun, atol=1e-5),
-      all(np.isclose(o1.jac, o2.jac, atol=1e-5)))
+## test against scipy.optimize.minimize(method='L-BFGS-B')
+o2 = minimize(fun=f, x0=x0, args=.5, method='L-BFGS-B')
+print(all(np.isclose(o1.x, o2.x, atol=1e-10)),
+      np.isclose(o1.fun, o2.fun, atol=1e-10),
+      all(np.isclose(o1.jac, o2.jac, atol=1e-10)))
 
 ## timing results
 o1_start = time.time()
 _ = minimize_parallel(fun=f, x0=x0, args=.5)
 o1_end = time.time()
 o2_start = time.time()
-_ = minimize(fun=f, x0=x0, args=.5)
+_ = minimize(fun=f, x0=x0, args=.5, method='L-BFGS-B')
 o2_end = time.time()
 print("Time parallel {:2.2}\nTime standard {:2.2} ".
       format(o1_end - o1_start, o2_end - o2_start))
@@ -56,8 +56,8 @@ def g(x, sleep_secs=.5):
     return 2*(x-14)
 
 o3 = minimize_parallel(fun=f, x0=x0, jac=g, args=.5)
-o4 = minimize(fun=f, x0=x0, jac=g, args=.5)
+o4 = minimize(fun=f, x0=x0, jac=g, args=.5, method='L-BFGS-B')
 
-print(all(np.isclose(o3.x, o4.x, atol=1e-5)),
-      np.isclose(o3.fun, o4.fun, atol=1e-5),
-      all(np.isclose(o3.jac, o4.jac, atol=1e-5)))
+print(all(np.isclose(o3.x, o4.x, atol=1e-10)),
+      np.isclose(o3.fun, o4.fun, atol=1e-10),
+      all(np.isclose(o3.jac, o4.jac, atol=1e-10)))
