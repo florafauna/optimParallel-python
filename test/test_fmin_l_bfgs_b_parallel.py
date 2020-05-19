@@ -3,7 +3,7 @@ import pytest
 import itertools
 import numpy as np
 from scipy.optimize import fmin_l_bfgs_b
-from minipar.minipar import fmin_l_bfgs_b_parallel
+from src.optimparallel import fmin_l_bfgs_b_parallel
 
 ## test objective functions ---------------------------
 ## 'func' and 'fprime' cannot be used as function names

@@ -19,7 +19,7 @@ import numpy as np
 from scipy.optimize import minimize
 import time
 
-__all__ = ['minimize_parallel', 'fmin_l_bfgs_b_parallel']
+__all__ = ['minimize_parallel', 'fmin_l_bfgs_b_parallel', 'optimParallel']
 
 class EvalParallel:
     def __init__(self, fun, jac=None, args=(), eps=1e-8,
@@ -421,3 +421,6 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
          'warnflag': res['status']}
 
     return x, f, d
+
+
+optimParallel = minimize_parallel

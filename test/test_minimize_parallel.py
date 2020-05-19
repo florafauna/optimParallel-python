@@ -3,7 +3,7 @@ import pytest
 import itertools
 import numpy as np
 from scipy.optimize import minimize
-from minipar.minipar import minimize_parallel
+from src.optimparallel import minimize_parallel
 
 ## test objective functions ---------------------------
 ## minimize_parallel() expects 'fun' and 'jac' to be global.
