@@ -61,15 +61,15 @@ print(o1.loginfo)
 
 More examples are given in [example.py](https://github.com/florafauna/optimParallel-python/blob/master/example.py).
 
-## Contributions
-Contributions via pull requests are welcome.
-
-*   [Git repository](https://github.com/florafauna/optimParallel-python)
-
 ## Author
 
 *   Florian Gerber, <flora.fauna.gerber@gmail.com>, [web page](https://user.math.uzh.ch/gerber)
 
-### Contributors
+### Contributions
+Contributions via pull requests are welcome.
 
-*   Lewis Blake: code for the `loginfo` and `time` features.
+*   [Git repository](https://github.com/florafauna/optimParallel-python)
+
+Thanks to:
+
+*   Lewis Blake for contributing code for the `loginfo=True` and `time=True` features.
