@@ -1,4 +1,4 @@
-# optimParallel-python [![Codacy Badge](https://app.codacy.com/project/badge/Grade/9bb33b3e786940af972da1835847c582)](https://www.codacy.com/manual/florafauna/optimParallel-python?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=florafauna/optimParallel-python&amp;utm_campaign=Badge_Grade)
+# optimParallel-python [![Build Status](https://travis-ci.org/florafauna/optimParallel-python.svg?branch=master)](https://travis-ci.org/florafauna/optimParallel-python) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/9bb33b3e786940af972da1835847c582)](https://www.codacy.com/manual/florafauna/optimParallel-python?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=florafauna/optimParallel-python&amp;utm_campaign=Badge_Grade)
 
 A parallel version of the L-BFGS-B optimizer of `scipy.optimize.minimize()`.
 Using it can significantly reduce the optimization time. For an objective
