@@ -23,8 +23,8 @@ pip install optimparallel
 
 ## Usage
 
-Replace `scipy.optimize.minimize()` by `optimparallel.minimize_parallel()` to execute
-the minimization in parallel:
+Replace `scipy.optimize.minimize(method='L-BFGS-B')` by `optimparallel.minimize_parallel()`
+to execute the minimization in parallel:
 
 ```python
 from optimparallel import minimize_parallel
