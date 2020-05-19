@@ -15,7 +15,7 @@ def f(x, sleep_secs=.5):
 ## start value
 x0 = np.array([10,20])
 
-## minimze with parallel evaluation of 'fun' and
+## minimize with parallel evaluation of 'fun' and
 ## its approximate gradient.
 o1 = minimize_parallel(fun=f, x0=x0, args=.5)
 print(o1)

@@ -24,7 +24,7 @@ pip install optimparallel
 ## Usage
 
 Replace `scipy.optimize.minimize()` by `optimparallel.minimize_parallel()` to execute
-the minimzation in parallel:
+the minimization in parallel:
 
 ```python
 from optimparallel import minimize_parallel
@@ -40,7 +40,7 @@ def f(x, sleep_secs=.5):
 ## start value
 x0 = np.array([10,20])
 
-## minimze with parallel evaluation of 'fun' and
+## minimize with parallel evaluation of 'fun' and
 ## its approximate gradient.
 o1 = minimize_parallel(fun=f, x0=x0, args=.5)
 print(o1)
@@ -65,3 +65,7 @@ More examples are given in [example.py](example.py).
 Contributions via pull requests are welcome.
 
 *   [Git repository](https://github.com/florafauna/optimParallel-python)
+
+## Contributors:
+
+*   Lewis Blake contributed code for the 'loginfo' and 'time' features.
