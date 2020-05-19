@@ -66,6 +66,10 @@ Contributions via pull requests are welcome.
 
 *   [Git repository](https://github.com/florafauna/optimParallel-python)
 
-## Contributors:
+## Author
+
+*   Florian Gerber, <flora.fauna.gerber@gmail.com>, [web page](https://user.math.uzh.ch/gerber)
+
+### Contributors
 
 *   Lewis Blake: code for the `loginfo` and `time` features.
