@@ -59,7 +59,7 @@ o1 = minimize_parallel(fun=f, x0=x0, args=.5, parallel={'loginfo': True})
 print(o1.loginfo)
 ```
 
-More examples are given in [example.py](example.py).
+More examples are given in [example.py](https://github.com/florafauna/optimParallel-python/blob/master/example.py).
 
 ## Contributions
 Contributions via pull requests are welcome.
