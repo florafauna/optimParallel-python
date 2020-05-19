@@ -1,10 +1,9 @@
 """Example of `minimize_parallel()`."""
 
-from minipar.minipar import minimize_parallel
+from optimparallel import minimize_parallel
 from scipy.optimize import minimize
 import numpy as np
 import time
-from timeit import default_timer as timer
 import matplotlib.pyplot as plt
 
 ## objective function
@@ -28,20 +27,18 @@ print(all(np.isclose(o1.x, o2.x, atol=1e-5)),
       all(np.isclose(o1.jac, o2.jac, atol=1e-5)))
 
 ## timing results
-o1_start = timer()
+o1_start = time.time()
 _ = minimize_parallel(fun=f, x0=x0, args=.5)
-o1_end = timer()
-o2_start = timer()
+o1_end = time.time()
+o2_start = time.time()
 _ = minimize(fun=f, x0=x0, args=.5)
-o2_end = timer()
+o2_end = time.time()
 print("Time parallel {:2.2}\nTime standard {:2.2} ".
       format(o1_end - o1_start, o2_end - o2_start))
 
 ## loginfo -------------------------------------
 o1 = minimize_parallel(fun=f, x0=x0, args=.5, parallel={'loginfo': True})
-print(o1.loginfo['x'])
-print(o1.loginfo['fun'])
-print(o1.loginfo['jac'])
+print(o1.loginfo)
 
 x1, x2 = o1.loginfo['x'][:,0], o1.loginfo['x'][:,1]
 plt.plot(x1, x2, '-o')
