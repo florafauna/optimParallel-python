@@ -13,7 +13,7 @@ setup(
         'scipy',
         'numpy'
     ],
-    extras_requires=['pytest'],
+    extras_requires={'dev': ['pytest'] },
     long_description=long_description,
     long_description_content_type="text/markdown",
     classifiers=[
