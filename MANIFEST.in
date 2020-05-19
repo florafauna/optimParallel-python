@@ -1,0 +1,7 @@
+include *.py
+include *.txt
+include *.yml
+include LICENSE
+include tox.ini
+recursive-include src *.py
+recursive-include test *.py
