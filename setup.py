@@ -24,7 +24,7 @@ setup(
         "Programming Language :: Python :: 3.6",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
-        "Topic :: Scientific/Engineering :: Mathematics".
+        "Topic :: Scientific/Engineering :: Mathematics",
     ],
     url="https://github.com/florafauna/optimParallel-python",
     author="Florian Gerber",
