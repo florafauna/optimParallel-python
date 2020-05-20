@@ -31,6 +31,7 @@ to execute the minimization in parallel:
 from optimparallel import minimize_parallel
 from scipy.optimize import minimize
 import numpy as np
+import time
 
 ## objective function
 def f(x, sleep_secs=.5):
