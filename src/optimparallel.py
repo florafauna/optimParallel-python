@@ -164,7 +164,8 @@ class EvalParallel:
         return self.jac_val
 
 
-def minimize_parallel(fun, x0,
+def minimize_parallel(executor,
+                      fun, x0,
                       args=(),
                       jac=None,
                       bounds=None,
@@ -190,12 +191,10 @@ def minimize_parallel(fun, x0,
 
     Additional arguments controlling the parallel execution are:
 
+    executor: objects of type `concurrent.futures.process.ProcessPoolExecutor`.
+        Can be created with `concurrent.futures.process.ProcessPoolExecutor()`.
+    
     parallel: dict
-        max_workers: The maximum number of processes that can be
-            used to execute the given calls. The value is passed
-            to the `max_workers` argument of
-            `concurrent.futures.ProcessPoolExecutor()`.
-
         forward: bool. If `True` (default), the forward difference method is
             used to approximate the gradient when `jac` is `None`.
             If `False` the central difference method is used.
@@ -246,6 +245,9 @@ def minimize_parallel(fun, x0,
     Lewis Blake (contributions to the 'loginfo' and 'time' features).
     """
 
+    if not isinstance(executor, concurrent.futures.process.ProcessPoolExecutor):
+        raise TypeError("'executor' has to pe of type 'concurrent.futures.process.ProcessPoolExecutor'")
+                        
     ## get length of x0
     try:
         n = len(x0)
@@ -267,7 +269,7 @@ def minimize_parallel(fun, x0,
         else:
             options_used['gtol'] = tol
 
-    parallel_used = {'max_workers': None, 'forward': True, 'verbose': False,
+    parallel_used = {'forward': True, 'verbose': False,
                      'loginfo': False, 'time': False}
     if not parallel is None:
         assert isinstance(parallel, dict), "argument 'parallel' must be of type 'dict'"
@@ -276,24 +278,22 @@ def minimize_parallel(fun, x0,
     if parallel_used.get('time'):
         time_start = time.time()
 
-    with concurrent.futures.ProcessPoolExecutor(max_workers=
-                         parallel_used.get('max_workers')) as executor:
-        fun_jac = EvalParallel(fun=fun,
-                               jac=jac,
-                               args=args,
-                               eps=options_used.get('eps'),
-                               executor=executor,
-                               forward=parallel_used.get('forward'),
-                               loginfo=parallel_used.get('loginfo'),
-                               verbose=parallel_used.get('verbose'),
-                               n=n)
-        out = minimize(fun=fun_jac.fun,
-                       x0=x0,
-                       jac=fun_jac.jac,
-                       method='L-BFGS-B',
-                       bounds=bounds,
-                       callback=callback,
-                       options=options_used)
+    fun_jac = EvalParallel(fun=fun,
+                           jac=jac,
+                           args=args,
+                           eps=options_used.get('eps'),
+                           executor=executor,
+                           forward=parallel_used.get('forward'),
+                           loginfo=parallel_used.get('loginfo'),
+                           verbose=parallel_used.get('verbose'),
+                           n=n)
+    out = minimize(fun=fun_jac.fun,
+                   x0=x0,
+                   jac=fun_jac.jac,
+                   method='L-BFGS-B',
+                   bounds=bounds,
+                   callback=callback,
+                   options=options_used)
 
     out.hess_inv = out.hess_inv * np.identity(n)
 
