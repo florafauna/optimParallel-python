@@ -1,29 +1,21 @@
-language: python
-group: travis_latest
-
-python:
-- 3.8
-- 3.6
-
-matrix:
+language: python            # this works for Linux but is an error on macOS or Windows
+jobs:
   include:
-  - os: linux
-    name: PEP8 MyPy Coverage
-    python: 3.7
-    install: pip install -e .[dev]
-    script:
-    - pytest
-    after_success:
-    - coveralls
-  - os: osx
-    language: minimal
-    install: pip3 install -e .[dev]
-  - os: windows
-    language: minimal
-    before_install:
-    - choco install python3
-    - export PATH="/c/Python37:/c/Python37/Scripts:$PATH"
-
-install: pip install -e .[dev]
-
+    - name: "Python 3.8.0 on Xenial Linux"
+      python: 3.8           # this works for Linux but is ignored on macOS or Windows
+    - name: "Python 3.7.4 on macOS"
+      os: osx
+      osx_image: xcode11.2  # Python 3.7.4 running on macOS 10.14.4
+      language: shell       # 'language: python' is an error on Travis CI macOS
+    - name: "Python 3.8.0 on Windows"
+      os: windows           # Windows 10.0.17134 N/A Build 17134
+      language: shell       # 'language: python' is an error on Travis CI Windows
+      before_install:
+        - choco install python --version 3.8.0
+        - python -m pip install --upgrade pip
+      env: PATH=/c/Python38:/c/Python38/Scripts:$PATH
+install: pip3 install -e .[dev]
+# 'python' points to Python 2.7 on macOS but points to Python 3.8 on Linux and Windows
+# 'python3' is a 'command not found' error on Windows but 'py' works on Windows only
 script: pytest
+
