@@ -1,16 +1,29 @@
 language: python
+group: travis_latest
 
 python:
-  - "3.5"
-  - "3.6"
-  - "3.7"
-  - "3.8"
-  - "3.8-dev"
+- 3.8
+- 3.6
 
-# command to install dependencies
-install:
-  - pip install -r requirements.txt
+matrix:
+  include:
+  - os: linux
+    name: PEP8 MyPy Coverage
+    python: 3.7
+    install: pip install -e .[dev]
+    script:
+    - pytest
+    after_success:
+    - coveralls
+  - os: osx
+    language: minimal
+    install: pip3 install -e .[dev]
+  - os: windows
+    language: minimal
+    before_install:
+    - choco install python3
+    - export PATH="/c/Python37:/c/Python37/Scripts:$PATH"
 
-# command to run tests
-script:
-  - pytest
+install: pip install -e .[tests]
+
+script: pytest
