@@ -24,6 +24,6 @@ matrix:
     - choco install python3
     - export PATH="/c/Python37:/c/Python37/Scripts:$PATH"
 
-install: pip install -e .[tests]
+install: pip install -e .[dev]
 
 script: pytest
