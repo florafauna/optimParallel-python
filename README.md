@@ -69,7 +69,8 @@ More examples are given in [example.py](https://github.com/florafauna/optimParal
 ### Contributions
 Contributions via pull requests are welcome.
 
-*   [Git repository](https://github.com/florafauna/optimParallel-python)
+*   <https://github.com/florafauna/optimParallel-python>
+*   <https://pypi.org/project/optimparallel>
 
 Thanks to:
 
