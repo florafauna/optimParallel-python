@@ -73,6 +73,6 @@ Contributions via pull requests are welcome.
 *   <https://github.com/florafauna/optimParallel-python>
 *   <https://pypi.org/project/optimparallel>
 
-Thanks to:
+Thanks to contributors:
 
-*   Lewis Blake for contributing code for the `loginfo=True` and `time=True` features.
+*   Lewis Blake
