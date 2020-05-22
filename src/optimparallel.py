@@ -283,7 +283,7 @@ def minimize_parallel(fun, x0,
     Florian Gerber, flora.fauna.gerber@gmail.com
     https://user.math.uzh.ch/gerber/index.html
 
-    Lewis Blake (contributions to the 'loginfo' and 'time' features).
+    Lewis Blake (testing, 'loginfo', 'time' features).
     """
 
     ## get length of x0
@@ -425,7 +425,7 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
     Florian Gerber, flora.fauna.gerber@gmail.com
     https://user.math.uzh.ch/gerber/index.html
 
-    Lewis Blake (contributions to the 'loginfo' and 'time' features).
+    Lewis Blake (testing, 'loginfo', 'time' features).
     """
 
     fun = func

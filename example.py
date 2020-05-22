@@ -1,4 +1,8 @@
-"""Example of `minimize_parallel()`."""
+"""Example of `minimize_parallel()`.
+
+On a Windows OS it might be necessary to run `minimize_parallel()`
+in the main scope. See `example_windows_os.py`.
+"""
 
 from optimparallel import minimize_parallel
 from scipy.optimize import minimize
@@ -15,8 +19,8 @@ def f(x, sleep_secs=.5):
 ## start value
 x0 = np.array([10,20])
 
-## minimize with parallel evaluation of 'fun' and
-## its approximate gradient.
+## minimize with parallel evaluation of 'fun'
+## and its approximate gradient
 o1 = minimize_parallel(fun=f, x0=x0, args=.5)
 print(o1)
 

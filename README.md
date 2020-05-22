@@ -13,13 +13,12 @@ A similar extension of the L-BFGS-B optimizer exists in the R package *optimPara
 *   [optimParallel on CRAN](https://CRAN.R-project.org/package=optimParallel)
 *   [R Journal article](https://doi.org/10.32614/RJ-2019-030)
 
-
 ## Installation
 
 To install the package run:
 
-```python
-pip install optimparallel
+```bash
+$ pip install optimparallel
 ```
 
 ## Usage
@@ -63,15 +62,23 @@ print(o1.loginfo)
 
 More examples are given in [example.py](https://github.com/florafauna/optimParallel-python/blob/master/example.py).
 
+**Note for Windows users**: It may be necessary to run `minimize_parallel()` in the main scope. See [example_windows_os.py](https://github.com/florafauna/optimParallel-python/blob/master/example_windows_os.py).
+
 ## Author
 
-*   Florian Gerber, <flora.fauna.gerber@gmail.com>, [web page](https://user.math.uzh.ch/gerber).
+*   Florian Gerber, <flora.fauna.gerber@gmail.com>, <https://user.math.uzh.ch/gerber>.
 
 ### Contributions
 Contributions via pull requests are welcome.
 
 *   <https://github.com/florafauna/optimParallel-python>
 *   <https://pypi.org/project/optimparallel>
+
+To install devel requirements run:
+
+```bash
+$ pip install optimparallel
+```
 
 Thanks to contributors:
 
