@@ -1,6 +1,6 @@
 """Example of `minimize_parallel()` on a Windows OS.
 
-On a Windows OS it might be necessary to run `minimize_parallel()` 
+On a Windows OS it might be necessary to run `minimize_parallel()`
 in the main scope. Here is an example.
 """
 
@@ -16,7 +16,7 @@ def f(x, sleep_secs=.5):
     return sum((x-14)**2)
 
 
-def main(): 
+def main():
     """Function to be called in the main scope."""
 
     ## start value

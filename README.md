@@ -13,7 +13,6 @@ A similar extension of the L-BFGS-B optimizer exists in the R package *optimPara
 *   [optimParallel on CRAN](https://CRAN.R-project.org/package=optimParallel)
 *   [R Journal article](https://doi.org/10.32614/RJ-2019-030)
 
-
 ## Installation
 
 To install the package run:
@@ -67,7 +66,7 @@ More examples are given in [example.py](https://github.com/florafauna/optimParal
 
 ## Author
 
-*   Florian Gerber, <flora.fauna.gerber@gmail.com>, [web page](https://user.math.uzh.ch/gerber).
+*   Florian Gerber, <flora.fauna.gerber@gmail.com>, <https://user.math.uzh.ch/gerber>.
 
 ### Contributions
 Contributions via pull requests are welcome.

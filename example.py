@@ -1,6 +1,6 @@
 """Example of `minimize_parallel()`.
 
-On a Windows OS it might be necessary to run `minimize_parallel()` 
+On a Windows OS it might be necessary to run `minimize_parallel()`
 in the main scope. See `example_windows_os.py`.
 """
 
