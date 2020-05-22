@@ -221,6 +221,46 @@ def minimize_parallel(fun, x0,
     fun(upper-eps). `eps` is specified in `options` and defaults to `1e-8`,
     see `scipy.optimize.minimize(method='L-BFGS-B')`.
 
+    Example
+    -------
+    >>> from optimparallel import minimize_parallel
+    >>> from scipy.optimize import minimize
+    >>> import numpy as np
+    >>> import time
+    >>>
+    >>> ## objective function
+    ... def f(x, sleep_secs=.5):
+    ...     print('*', end='')
+    ...     time.sleep(sleep_secs)
+    ...     return sum((x-14)**2)
+    >>>
+    >>> ## start value
+    ... x0 = np.array([10,20])
+    >>>
+    >>> ## minimize with parallel evaluation of 'fun' and
+    >>> ## its approximate gradient.
+    >>> o1 = minimize_parallel(fun=f, x0=x0, args=.5)
+    *********
+    >>> print(o1)
+           fun: 2.17075906477993e-12
+     hess_inv: array([[0.84615401, 0.23076919],
+           [0.23076919, 0.65384592]])
+          jac: array([1.94333641e-06, 2.23379136e-06])
+      message: b'CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL'
+         nfev: 3
+          nit: 2
+       status: 0
+      success: True
+            x: array([14.00000097, 14.00000111])
+    >>>
+    >>> ## test against scipy.optimize.minimize()
+    >>> o2 = minimize(fun=f, x0=x0, args=.5, method='L-BFGS-B')
+    *********
+    >>> print(all(np.isclose(o1.x, o2.x, atol=1e-10)),
+    ...       np.isclose(o1.fun, o2.fun, atol=1e-10),
+    ...       all(np.isclose(o1.jac, o2.jac, atol=1e-10)))
+    True True True
+
     References
     ----------
     When using the package please cite:
@@ -258,7 +298,8 @@ def minimize_parallel(fun, x0,
                     'eps': 1e-08, 'maxfun': 15000,
                     'maxiter': 15000, 'iprint': -1, 'maxls': 20}
     if not options is None:
-        assert isinstance(options, dict), "argument 'options' must be of type 'dict'"
+        if not isinstance(options, dict):
+            raise TypeError("argument 'options' must be of type 'dict'")
         options_used.update(options)
     if not tol is None:
         if not options is None and 'gtol' in options:
@@ -270,7 +311,8 @@ def minimize_parallel(fun, x0,
     parallel_used = {'max_workers': None, 'forward': True, 'verbose': False,
                      'loginfo': False, 'time': False}
     if not parallel is None:
-        assert isinstance(parallel, dict), "argument 'parallel' must be of type 'dict'"
+        if not isinstance(parallel, dict):
+            raise TypeError("argument 'parallel' must be of type 'dict'")
         parallel_used.update(parallel)
 
     if parallel_used.get('time'):
@@ -390,10 +432,11 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
     if approx_grad:
         jac = None
     else:
-        assert fprime is not None, ("'func' returning the function AND its "
-                                    "gradient is not supported.\n"
-                                    "Please specify separate functions in "
-                                    "'func' and 'fprime'.")
+        if fprime is None:
+            raise ValueError("'func' returning the function AND its "
+                             "gradient is not supported.\n"
+                             "Please specify separate functions in "
+                             "'func' and 'fprime'.")
         jac = fprime
 
     # build options
@@ -422,6 +465,8 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
 
     return x, f, d
 
-
+## create aliases for users looking for an optimparallel function
 optimParallel = minimize_parallel
+optimParallel.__doc__ = "Same function as `minimize_parallel()`. See `help(minimize_parallel."
 optimparallel = minimize_parallel
+optimparallel.__doc__ = optimParallel.__doc__

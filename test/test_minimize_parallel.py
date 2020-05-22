@@ -29,19 +29,23 @@ def jac_arg2(x, a, b):
     return 2*(x-a)
 
 def fun_upper0(x, ub):
-    assert any(x <= ub), "x has to be smaller than upper bound"
+    if not any(x <= ub):
+        raise ValueError("x has to be smaller than upper bound")
     return sum((x-1)**2)
 
 def jac_upper0(x, ub):
-    assert any(x <= ub), "x has to be smaller than upper bound"
+    if not any(x <= ub):
+        raise ValueError("x has to be smaller than upper bound")
     return 2*(x-1)
 
 def fun_lower0(x, ub):
-    assert any(x >= ub), "x has to be larger than lower bound"
+    if not any(x >= ub):
+        raise ValueError("x has to be larger than lower bound")
     return sum((x-1)**2)
 
 def jac_lower0(x, ub):
-    assert any(x >= ub), "x has to be larger than lower bound"
+    if not any(x >= ub):
+        raise("x has to be larger than lower bound")
     return 2*(x-1)
 
 def compare_minimize(x0, args=(), bounds=None, tol=None,
