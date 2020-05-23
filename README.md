@@ -74,12 +74,6 @@ Contributions via pull requests are welcome.
 *   <https://github.com/florafauna/optimParallel-python>
 *   <https://pypi.org/project/optimparallel>
 
-To install devel requirements run:
-
-```bash
-$ pip install optimparallel
-```
-
 Thanks to contributors:
 
 *   Lewis Blake
