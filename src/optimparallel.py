@@ -1,14 +1,17 @@
-
 """
 A parallel version of the L-BFGS-B optimizer of `scipy.optimize.minimize()`.
+
 Using it can significantly reduce the optimization time. For an objective
 function with p parameters the optimization speed increases by up to
 factor 1+p, when no analytic gradient is specified and 1+p processor cores
 with sufficient memory are available.
 
-Function
---------
-- minimize_parallel : parallel version of `scipy.optimize.minimize()`.
+Functions
+---------
+- minimize_parallel: parallel version of `scipy.optimize.minimize()`
+- optimParallel: same as `minimize_parallel()`
+- optimparallel: same as `minimize_parallel()`
+- fmin_l_bfgs_b_parallel: parallel version of `scipy.optimize.fmin_l_bfgs_b()`
 """
 
 import warnings
