@@ -1,5 +1,4 @@
-"""
-A parallel version of the L-BFGS-B optimizer of `scipy.optimize.minimize()`.
+"""A parallel version of the L-BFGS-B optimizer of `scipy.optimize.minimize()`.
 
 Using it can significantly reduce the optimization time. For an objective
 function with p parameters the optimization speed increases by up to
