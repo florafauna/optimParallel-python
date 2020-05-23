@@ -1,4 +1,5 @@
-"""Example of `minimize_parallel()` on a Windows OS.
+"""
+Example of `minimize_parallel()` on a Windows OS.
 
 On a Windows OS it might be necessary to run `minimize_parallel()`
 in the main scope. Here is an example.

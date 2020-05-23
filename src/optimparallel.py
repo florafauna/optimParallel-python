@@ -1,4 +1,5 @@
-"""A parallel version of the L-BFGS-B optimizer of `scipy.optimize.minimize()`.
+"""
+A parallel version of the L-BFGS-B optimizer of `scipy.optimize.minimize()`.
 
 Using it can significantly reduce the optimization time. For an objective
 function with p parameters the optimization speed increases by up to
@@ -214,9 +215,14 @@ def minimize_parallel(fun, x0,
 
     Note
     ----
+    On Windows it may be necessary to run `minimize_parallel()` in the
+    main scope. See the example in
+    <https://github.com/florafauna/optimParallel-python/blob/master/example_windows_os.py>.
+
     Because of the parallel overhead, `minimize_parallel()` is only faster than
     `minimize()` for objective functions with an execution time of more than 0.1
     seconds.
+
     When `jac=None` and `bounds` are specified, it can be advisable to
     increase the lower bounds by `eps` and decrease the upper bounds by `eps`
     because the optimizer might try to evaluate fun(upper+eps) and
@@ -397,9 +403,14 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
 
     Note
     ----
+    On Windows it may be necessary to run `minimize_parallel()` in the
+    main scope. See the example in
+    <https://github.com/florafauna/optimParallel-python/blob/master/example_windows_os.py>.
+
     Because of the parallel overhead, `minimize_parallel()` is only faster than
     `minimize()` for objective functions with an execution time of more than 0.1
     seconds.
+
     When `approx_grad=True` and `bounds` are specified, it can be advisable to
     increase the lower bounds by `eps` and decrease the upper bounds by `eps`
     because the optimizer might try to evaluate fun(upper+eps) and if 'forward
