@@ -300,6 +300,12 @@ def minimize_parallel(fun, x0,
     except Exception:
         n = 1
 
+    if jac is True:
+        raise ValueError("'fun' returning the function AND its "
+                         "gradient is not supported.\n"
+                         "Please specify separate functions in "
+                         "'fun' and 'jac'.")
+
     ## update default options with specified options
     options_used = {'disp': None, 'maxcor': 10,
                     'ftol': 2.220446049250313e-09, 'gtol': 1e-05,
