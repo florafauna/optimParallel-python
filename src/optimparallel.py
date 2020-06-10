@@ -201,7 +201,8 @@ def minimize_parallel(fun, x0,
 
         forward: bool. If `True` (default), the forward difference method is
             used to approximate the gradient when `jac` is `None`.
-            If `False` the central difference method is used.
+            If `False`, the central difference method is used, which can be more
+            accurate.
 
         verbose: bool. If `True`, additional output is printed to the console.
 

@@ -1,3 +1,4 @@
+include *.ipynb
 include *.py
 include *.txt
 include *.yml
