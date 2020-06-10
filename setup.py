@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="optimparallel",
-    version="0.0.6",
+    version="0.1.1",
     description="A parallel version of the L-BFGS-B optimizer of scipy.optimize.minimize().",
     py_modules=["optimparallel"],
     package_dir={"": "src"},
