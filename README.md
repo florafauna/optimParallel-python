@@ -60,7 +60,7 @@ o1 = minimize_parallel(fun=f, x0=x0, args=.5, parallel={'loginfo': True})
 print(o1.loginfo)
 ```
 
-More examples are given in [example.py](https://github.com/florafauna/optimParallel-python/blob/master/example.py) and [example_extended.ipynb](https://github.com/florafauna/optimParallel-python/blob/master/example_extended.ipynb)
+More examples are given in [example.py](https://github.com/florafauna/optimParallel-python/blob/master/example.py) and [example_extended.ipynb](https://github.com/florafauna/optimParallel-python/blob/master/example_extended.ipynb).
 
 **Note for Windows users**: It may be necessary to run `minimize_parallel()` in the main scope. See [example_windows_os.py](https://github.com/florafauna/optimParallel-python/blob/master/example_windows_os.py).
 
