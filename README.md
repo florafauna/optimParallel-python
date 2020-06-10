@@ -1,7 +1,10 @@
 # optimparallel - A parallel version of `scipy.optimize.minimize(method='L-BFGS-B')`
 
-![PyPI](https://img.shields.io/pypi/v/optimparallel)
-[![Build Status](https://travis-ci.org/florafauna/optimParallel-python.svg?branch=master)](https://travis-ci.org/florafauna/optimParallel-python) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/9bb33b3e786940af972da1835847c582)](https://www.codacy.com/manual/florafauna/optimParallel-python?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=florafauna/optimParallel-python&amp;utm_campaign=Badge_Grade) [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![DOI](https://zenodo.org/badge/257319138.svg)](https://zenodo.org/badge/latestdoi/257319138)
+[![PyPI](https://img.shields.io/pypi/v/optimparallel)](https://pypi.org/project/optimparallel)
+[![Build Status](https://travis-ci.org/florafauna/optimParallel-python.svg?branch=master)](https://travis-ci.org/florafauna/optimParallel-python)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/9bb33b3e786940af972da1835847c582)](https://www.codacy.com/manual/florafauna/optimParallel-python?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=florafauna/optimParallel-python&amp;utm_campaign=Badge_Grade)
+[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 Using `optimparallel.minimize_parallel()` can significantly reduce the
 optimization time. For an objective function with an execution time
@@ -64,9 +67,21 @@ More examples are given in [example.py](https://github.com/florafauna/optimParal
 
 **Note for Windows users**: It may be necessary to run `minimize_parallel()` in the main scope. See [example_windows_os.py](https://github.com/florafauna/optimParallel-python/blob/master/example_windows_os.py).
 
-## Author
+## Citation
+
+When using this package please cite:
+
+*   Gerber, F. _optimparallel - A parallel version of `scipy.optimize.minimize(method='L-BFGS-B')_, 2020, <http://doi.org/10.5281/zenodo.3888570>
+*   Gerber, F., and Furrer, R. _optimParallel: An R package providing a parallel version of the L-BFGS-B optimization method._ The R Journal, 11(1):352–358, 2019. <http://doi.org/10.32614/RJ-2019-030>
+
+
+### Author
 
 *   Florian Gerber, <flora.fauna.gerber@gmail.com>, <https://user.math.uzh.ch/gerber>.
+
+### Contributor
+
+*   Lewis Blake
 
 ### Contributions
 Contributions via pull requests are welcome.
@@ -74,6 +89,3 @@ Contributions via pull requests are welcome.
 *   <https://github.com/florafauna/optimParallel-python>
 *   <https://pypi.org/project/optimparallel>
 
-Thanks to contributors:
-
-*   Lewis Blake
