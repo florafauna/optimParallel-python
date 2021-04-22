@@ -318,7 +318,7 @@ def minimize_parallel(fun, x0,
         options_used.update(options)
     if not tol is None:
         if not options is None and 'gtol' in options:
-            warnings.warn("'tol' is ignored and 'gtol' in 'opitons' is used insetad.",
+            warnings.warn("'tol' is ignored and 'gtol' in 'options' is used instead.",
                           RuntimeWarning)
         else:
             options_used['gtol'] = tol
