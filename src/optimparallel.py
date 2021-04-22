@@ -352,8 +352,6 @@ def minimize_parallel(fun, x0,
                        callback=callback,
                        options=options_used)
 
-    out.hess_inv = out.hess_inv * np.identity(n)
-
     if parallel_used.get('loginfo'):
         out.loginfo = {k: (lambda x: np.array(x) if isinstance(x[0], list)
                            else np.array(x)[np.newaxis].T)(v) for k, v in fun_jac.info.items()}
@@ -487,6 +485,6 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
 
 ## create aliases for users looking for an optimparallel function
 optimParallel = minimize_parallel
-optimParallel.__doc__ = "Same function as `minimize_parallel()`. See `help(minimize_parallel."
+optimParallel.__doc__ = "Same function as `minimize_parallel()`. See `help(minimize_parallel)`."
 optimparallel = minimize_parallel
 optimparallel.__doc__ = optimParallel.__doc__
