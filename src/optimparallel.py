@@ -199,6 +199,11 @@ def minimize_parallel(fun, x0,
             to the `max_workers` argument of
             `concurrent.futures.ProcessPoolExecutor()`.
 
+        executor: An individual executor (which is an instance of
+            `concurrent.futures.Executor`) that solves the tasks. It allows
+            i.e. extension towards multi-processor operation via
+            `mpi4py.futures.MPIPoolExecutor()`.
+
         forward: bool. If `True` (default), the forward difference method is
             used to approximate the gradient when `jac` is `None`.
             If `False`, the central difference method is used, which can be more
@@ -324,7 +329,8 @@ def minimize_parallel(fun, x0,
             options_used['gtol'] = tol
 
     parallel_used = {'max_workers': None, 'forward': True, 'verbose': False,
-                     'loginfo': False, 'time': False}
+                     'loginfo': False, 'time': False, 'executor': None}
+
     if not parallel is None:
         if not isinstance(parallel, dict):
             raise TypeError("argument 'parallel' must be of type 'dict'")
@@ -333,8 +339,11 @@ def minimize_parallel(fun, x0,
     if parallel_used.get('time'):
         time_start = time.time()
 
-    with concurrent.futures.ProcessPoolExecutor(max_workers=
-                         parallel_used.get('max_workers')) as executor:
+    if parallel_used.get('executor') is None:
+        parallel_used["executor"] = concurrent.futures.ProcessPoolExecutor(
+                    max_workers=parallel_used.get('max_workers', None))
+
+    with parallel_used.get("executor") as executor:
         fun_jac = EvalParallel(fun=fun,
                                jac=jac,
                                args=args,
