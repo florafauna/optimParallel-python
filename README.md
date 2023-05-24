@@ -2,7 +2,7 @@
 
 [![DOI](https://zenodo.org/badge/257319138.svg)](https://zenodo.org/badge/latestdoi/257319138)
 [![PyPI](https://img.shields.io/pypi/v/optimparallel)](https://pypi.org/project/optimparallel)
-[![Build Status](https://travis-ci.org/florafauna/optimParallel-python.svg?branch=master)](https://travis-ci.org/florafauna/optimParallel-python)
+[![Build Status](https://github.com/florafauna/optimParallel-python/actions/workflows/python-package.yml/badge.svg)](https://github.com/florafauna/optimParallel-python/actions/workflows/python-package.yml)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 Using `optimparallel.minimize_parallel()` can significantly reduce the
