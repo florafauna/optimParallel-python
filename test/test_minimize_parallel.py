@@ -1,16 +1,16 @@
-## test minimize_parallel()
+# test minimize_parallel()
 import pytest
 import itertools
 import numpy as np
 from scipy.optimize import minimize
 from src.optimparallel import minimize_parallel
 
-## test objective functions ---------------------------
-## minimize_parallel() expects 'fun' and 'jac' to be global.
+# test objective functions ---------------------------
+# minimize_parallel() expects 'fun' and 'jac' to be global.
 fun, jac = None, None
 
 
-## we reserve the names 'fun' and 'jac' for them.
+# we reserve the names 'fun' and 'jac' for them.
 def fun0(x):
     return sum((x - 3) ** 2)
 
@@ -143,7 +143,7 @@ def check_minimize(
     """Helper function to minimize_parallel() against minimize()."""
     __tracebackhide__ = TRACEBACKHIDE
 
-    ## load parameters of scenario
+    # load parameters of scenario
     global fun, jac
     fun = globals()["fun" + str(fun_id)]
     jac = None if approx_grad else globals()["jac" + str(fun_id)]
@@ -175,7 +175,7 @@ def check_minimize(
     )
 
 
-## test options ----------------------------
+# test options ----------------------------
 @pytest.mark.parametrize("fun_id", [0])
 @pytest.mark.parametrize("x0", [np.array([1]), np.array([1, 2])])
 @pytest.mark.parametrize("approx_grad", [True, False])
@@ -205,7 +205,7 @@ def test_minimize_args0(
     )
 
 
-## test if loginfo=True returns somthing --------------------
+# test if loginfo=True returns somthing --------------------
 @pytest.mark.parametrize("x0", [np.array([-1]), np.array([13, 221])])
 def test_minimize_loginfo(x0):
     o = minimize_parallel(fun0, x0=x0, parallel={"loginfo": True})
@@ -220,7 +220,7 @@ def test_minimize_loginfo(x0):
     assert o.loginfo["jac"].shape == (nsteps, len(x0))
 
 
-## test if time=True returns somthing --------------------
+# test if time=True returns somthing --------------------
 @pytest.mark.parametrize("x0", [np.array([-1]), np.array([13, 221])])
 def test_minimize_time(x0):
     o = minimize_parallel(fun0, x0=x0, parallel={"time": True})
@@ -230,7 +230,7 @@ def test_minimize_time(x0):
     assert isinstance(o.time["step"], float)
 
 
-## test functions with 1 extra arg and parallel options --------------------
+# test functions with 1 extra arg and parallel options --------------------
 @pytest.mark.parametrize("fun_id", ["_arg1"])
 @pytest.mark.parametrize("x0", [np.array([-1]), np.array([13, 221])])
 @pytest.mark.parametrize("args", [(3,), (-35,)])
@@ -248,7 +248,7 @@ def test_minimize_args1(fun_id, x0, args, approx_grad, max_workers, forward):
     )
 
 
-## test functions with 2 extra args and parallel options -----------------
+# test functions with 2 extra args and parallel options -----------------
 @pytest.mark.parametrize("fun_id", ["_arg2"])
 @pytest.mark.parametrize("x0", [np.array([-1]), np.array([13, 221])])
 @pytest.mark.parametrize("args", [(773, 66), (-3, 0)])
@@ -266,7 +266,7 @@ def test_minimize_args2(fun_id, x0, args, approx_grad, max_workers, forward):
     )
 
 
-## test bounds upper -------------------------------
+# test bounds upper -------------------------------
 @pytest.mark.parametrize("fun_id", ["_upper0"])
 @pytest.mark.parametrize("x0", [np.array([-9]), np.array([-9, -99])])
 @pytest.mark.parametrize("approx_grad", [True, False])
@@ -287,7 +287,7 @@ def test_minimize_upper(fun_id, x0, approx_grad, forward, bu):
     )
 
 
-## test bounds lower -------------------------------
+# test bounds lower -------------------------------
 @pytest.mark.parametrize("fun_id", ["_lower0"])
 @pytest.mark.parametrize("x0", [np.array([9]), np.array([9, 9])])
 @pytest.mark.parametrize("approx_grad", [True, False])
@@ -306,7 +306,7 @@ def test_minimize_lower(fun_id, x0, approx_grad, forward, bl):
     )
 
 
-## test options=None and 'tol' ----------------------------------
+# test options=None and 'tol' ----------------------------------
 @pytest.mark.parametrize("fun_id", [0])
 @pytest.mark.parametrize("approx_grad", [True, False])
 @pytest.mark.parametrize("x0", [np.array([1]), np.array([1, 2])])
@@ -316,7 +316,7 @@ def test_minimize_lower(fun_id, x0, approx_grad, forward, bl):
     "ignore:'tol' is ignored and 'gtol' in 'opitons' is used insetad."
 )
 def test_minimize_tol(fun_id, approx_grad, x0, tol, options):
-    ## load parameters of scenario
+    # load parameters of scenario
     global fun, jac
     fun = globals()["fun" + str(fun_id)]
     jac = None if approx_grad else globals()["jac" + str(fun_id)]

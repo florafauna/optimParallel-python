@@ -3,7 +3,6 @@
 [![DOI](https://zenodo.org/badge/257319138.svg)](https://zenodo.org/badge/latestdoi/257319138)
 [![PyPI](https://img.shields.io/pypi/v/optimparallel)](https://pypi.org/project/optimparallel)
 [![Build Status](https://travis-ci.org/florafauna/optimParallel-python.svg?branch=master)](https://travis-ci.org/florafauna/optimParallel-python)
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/9bb33b3e786940af972da1835847c582)](https://www.codacy.com/manual/florafauna/optimParallel-python?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=florafauna/optimParallel-python&amp;utm_campaign=Badge_Grade)
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 Using `optimparallel.minimize_parallel()` can significantly reduce the
@@ -35,22 +34,22 @@ from scipy.optimize import minimize
 import numpy as np
 import time
 
-## objective function
-def f(x, sleep_secs=.5):
+# objective function
+def f(x, sleep_secs=0.5):
     print('fn')
     time.sleep(sleep_secs)
-    return sum((x-14)**2)
+    return sum((x - 14)**2)
 
-## start value
-x0 = np.array([10,20])
+# start value
+x0 = np.array([10, 20])
 
-## minimize with parallel evaluation of 'fun' and
-## its approximate gradient.
-o1 = minimize_parallel(fun=f, x0=x0, args=.5)
+# minimize with parallel evaluation of 'fun' and
+# its approximate gradient.
+o1 = minimize_parallel(fun=f, x0=x0, args=0.5)
 print(o1)
 
-## test against scipy.optimize.minimize()
-o2 = minimize(fun=f, x0=x0, args=.5, method='L-BFGS-B')
+# test against scipy.optimize.minimize()
+o2 = minimize(fun=f, x0=x0, args=0.5, method='L-BFGS-B')
 print(all(np.isclose(o1.x, o2.x, atol=1e-10)),
       np.isclose(o1.fun, o2.fun, atol=1e-10),
       all(np.isclose(o1.jac, o2.jac, atol=1e-10)))
@@ -59,7 +58,7 @@ print(all(np.isclose(o1.x, o2.x, atol=1e-10)),
 The evaluated `x` values, `fun(x)`, and `jac(x)` can be returned:
 
 ```python
-o1 = minimize_parallel(fun=f, x0=x0, args=.5, parallel={'loginfo': True})
+o1 = minimize_parallel(fun=f, x0=x0, args=0.5, parallel={'loginfo': True})
 print(o1.loginfo)
 ```
 

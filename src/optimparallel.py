@@ -139,10 +139,10 @@ class EvalParallel:
                 ret = np.array(list(ret))
                 self.fun_val = ret[0]
                 if self.forward:
-                    self.jac_val = (ret[1 : (len(x) + 1)] - self.fun_val) / self.eps
+                    self.jac_val = (ret[1: (len(x) + 1)] - self.fun_val) / self.eps
                 else:
                     self.jac_val = (
-                        ret[1 : (len(x) + 1)] - ret[(len(x) + 1) : 2 * len(x) + 1]
+                        ret[1: (len(x) + 1)] - ret[(len(x) + 1): 2 * len(x) + 1]
                     ) / (2 * self.eps)
 
             # 'jac' function is not None
@@ -344,12 +344,12 @@ def minimize_parallel(
         "iprint": -1,
         "maxls": 20,
     }
-    if not options is None:
+    if options is not None:
         if not isinstance(options, dict):
             raise TypeError("argument 'options' must be of type 'dict'")
         options_used.update(options)
-    if not tol is None:
-        if not options is None and "gtol" in options:
+    if tol is not None:
+        if options is not None and "gtol" in options:
             warnings.warn(
                 "'tol' is ignored and 'gtol' in 'options' is used instead.",
                 RuntimeWarning,
@@ -364,7 +364,7 @@ def minimize_parallel(
         "loginfo": False,
         "time": False,
     }
-    if not parallel is None:
+    if parallel is not None:
         if not isinstance(parallel, dict):
             raise TypeError("argument 'parallel' must be of type 'dict'")
         parallel_used.update(parallel)

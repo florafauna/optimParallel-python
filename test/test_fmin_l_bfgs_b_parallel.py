@@ -1,12 +1,12 @@
-## test fmin_l_bfgs_b_parallel()
+# test fmin_l_bfgs_b_parallel()
 import pytest
 import itertools
 import numpy as np
 from scipy.optimize import fmin_l_bfgs_b
 from src.optimparallel import fmin_l_bfgs_b_parallel
 
-## test objective functions ---------------------------
-## 'func' and 'fprime' cannot be used as function names
+# test objective functions ---------------------------
+# 'func' and 'fprime' cannot be used as function names
 func, fprime = None, None
 
 
@@ -85,7 +85,7 @@ def check_fmin(
     """Helper function to test fmin_l_bfgs_b_parallel() against fmin_l_bfgs_b()."""
     __tracebackhide__ = TRACEBACKHIDE
 
-    ## load parameters of scenario
+    # load parameters of scenario
     global func, fprime
     func = globals()["func" + str(func_id)]
     fprime = None if approx_grad else globals()["fprime" + str(func_id)]
@@ -151,7 +151,7 @@ def check_fmin(
         )
 
 
-## test options ----------------------------
+# test options ----------------------------
 @pytest.mark.parametrize("func_id", [0])
 @pytest.mark.parametrize("x0", [np.array([1]), np.array([1, 2])])
 @pytest.mark.parametrize("approx_grad", [True, False])
@@ -181,7 +181,7 @@ def test_fmin_args0(
     )
 
 
-## test functions with 1 extra arg and parallel options --------------------
+# test functions with 1 extra arg and parallel options --------------------
 @pytest.mark.parametrize("func_id", ["_arg1"])
 @pytest.mark.parametrize("x0", [np.array([-1]), np.array([13, 221])])
 @pytest.mark.parametrize("args", [(3,), (-35,)])
@@ -199,7 +199,7 @@ def test_fmin_args1(func_id, x0, args, approx_grad, max_workers, forward):
     )
 
 
-## test functions with 2 extra args and parallel options -----------------
+# test functions with 2 extra args and parallel options -----------------
 @pytest.mark.parametrize("func_id", ["_arg2"])
 @pytest.mark.parametrize("x0", [np.array([-1]), np.array([13, 221])])
 @pytest.mark.parametrize("args", [(773, 66), (-3, 0)])
@@ -217,7 +217,7 @@ def test_fmin_args2(func_id, x0, args, approx_grad, max_workers, forward):
     )
 
 
-## test bounds upper -------------------------------
+# test bounds upper -------------------------------
 @pytest.mark.parametrize("func_id", ["_upper0"])
 @pytest.mark.parametrize("x0", [np.array([-9]), np.array([-9, -99])])
 @pytest.mark.parametrize("approx_grad", [True, False])
@@ -238,7 +238,7 @@ def test_fmin_upper(func_id, x0, approx_grad, forward, bu):
     )
 
 
-## test bounds lower -------------------------------
+# test bounds lower -------------------------------
 @pytest.mark.parametrize("func_id", ["_lower0"])
 @pytest.mark.parametrize("x0", [np.array([9]), np.array([9, 9])])
 @pytest.mark.parametrize("approx_grad", [True, False])
