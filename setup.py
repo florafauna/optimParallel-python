@@ -9,11 +9,8 @@ setup(
     description="A parallel version of the L-BFGS-B optimizer of scipy.optimize.minimize().",
     py_modules=["optimparallel"],
     package_dir={"": "src"},
-    install_requires=[
-        'scipy',
-        'numpy'
-    ],
-    extras_require={'dev': ['pytest'] },
+    install_requires=["scipy", "numpy"],
+    extras_require={"dev": ["pytest"]},
     long_description=long_description,
     long_description_content_type="text/markdown",
     classifiers=[

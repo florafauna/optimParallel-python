@@ -22,12 +22,27 @@ import numpy as np
 from scipy.optimize import minimize
 import time
 
-__all__ = ['minimize_parallel', 'fmin_l_bfgs_b_parallel', 'optimParallel', 'optimparallel']
+__all__ = [
+    "minimize_parallel",
+    "fmin_l_bfgs_b_parallel",
+    "optimParallel",
+    "optimparallel",
+]
+
 
 class EvalParallel:
-    def __init__(self, fun, jac=None, args=(), eps=1e-8,
-                 executor=concurrent.futures.ProcessPoolExecutor(),
-                 forward=True, loginfo=False, verbose=False, n=1):
+    def __init__(
+        self,
+        fun,
+        jac=None,
+        args=(),
+        eps=1e-8,
+        executor=concurrent.futures.ProcessPoolExecutor(),
+        forward=True,
+        loginfo=False,
+        verbose=False,
+        n=1,
+    ):
         self.fun_in = fun
         self.jac_in = jac
         self.eps = eps
@@ -44,7 +59,7 @@ class EvalParallel:
         self.n = n
         self.executor = executor
         if self.loginfo:
-            self.info = {k:[] for k in ['x', 'fun', 'jac']}
+            self.info = {k: [] for k in ["x", "fun", "jac"]}
         self.np_precision = np.finfo(float).eps
 
     # static helper methods are used for parallel execution with map()
@@ -55,10 +70,10 @@ class EvalParallel:
             x_ = x
         elif eps_at <= len(x):
             x_ = x.copy()
-            x_[eps_at-1] += eps
+            x_[eps_at - 1] += eps
         else:
             x_ = x.copy()
-            x_[eps_at-1-len(x)] -= eps
+            x_[eps_at - 1 - len(x)] -= eps
         return fun(x_, *args)
 
     @staticmethod
@@ -68,10 +83,10 @@ class EvalParallel:
             x_ = x
         elif eps_at <= len(x):
             x_ = x.copy()
-            x_[eps_at-1] += eps
+            x_[eps_at - 1] += eps
         else:
             x_ = x.copy()
-            x_[eps_at-1-len(x)] -= eps
+            x_[eps_at - 1 - len(x)] -= eps
         return fun(x_)
 
     @staticmethod
@@ -95,17 +110,16 @@ class EvalParallel:
         #       forward difference method,
         #       otherwise, the central difference method is used
         x = np.array(x)
-        if (self.x_val is not None and
-            all(abs(self.x_val - x) <= self.np_precision*2)):
+        if self.x_val is not None and all(abs(self.x_val - x) <= self.np_precision * 2):
             if self.verbose:
-                print('re-use')
+                print("re-use")
         else:
             self.x_val = x.copy()
             if self.jac_in is None:
                 if self.forward:
-                    eps_at = range(len(x)+1)
+                    eps_at = range(len(x) + 1)
                 else:
-                    eps_at = range(2*len(x)+1)
+                    eps_at = range(2 * len(x) + 1)
 
                 # pack 'self.args' into function because otherwise it
                 # cannot be serialized by
@@ -115,17 +129,21 @@ class EvalParallel:
                 else:
                     ftmp = self._eval_approx
 
-                ret = self.executor.map(ftmp, eps_at,
-                                    itertools.repeat(self.fun_in),
-                                    itertools.repeat(x),
-                                    itertools.repeat(self.eps))
+                ret = self.executor.map(
+                    ftmp,
+                    eps_at,
+                    itertools.repeat(self.fun_in),
+                    itertools.repeat(x),
+                    itertools.repeat(self.eps),
+                )
                 ret = np.array(list(ret))
                 self.fun_val = ret[0]
                 if self.forward:
-                    self.jac_val = (ret[1:(len(x)+1)] - self.fun_val ) / self.eps
+                    self.jac_val = (ret[1 : (len(x) + 1)] - self.fun_val) / self.eps
                 else:
-                    self.jac_val = (ret[1:(len(x)+1)]
-                                - ret[(len(x)+1):2*len(x)+1]) / (2*self.eps)
+                    self.jac_val = (
+                        ret[1 : (len(x) + 1)] - ret[(len(x) + 1) : 2 * len(x) + 1]
+                    ) / (2 * self.eps)
 
             # 'jac' function is not None
             else:
@@ -134,10 +152,13 @@ class EvalParallel:
                 else:
                     ftmp = self._eval_fun_jac
 
-                ret = self.executor.map(ftmp, [0,1],
-                                        itertools.repeat(self.fun_in),
-                                        itertools.repeat(self.jac_in),
-                                        itertools.repeat(x))
+                ret = self.executor.map(
+                    ftmp,
+                    [0, 1],
+                    itertools.repeat(self.fun_in),
+                    itertools.repeat(self.jac_in),
+                    itertools.repeat(x),
+                )
                 ret = list(ret)
                 self.fun_val = ret[0]
                 self.jac_val = ret[1]
@@ -145,37 +166,39 @@ class EvalParallel:
             self.jac_val = self.jac_val.reshape((self.n,))
 
             if self.loginfo:
-                self.info['fun'].append(self.fun_val)
+                self.info["fun"].append(self.fun_val)
                 if self.n >= 2:
-                    self.info['x'].append(self.x_val.tolist())
-                    self.info['jac'].append(self.jac_val.tolist())
+                    self.info["x"].append(self.x_val.tolist())
+                    self.info["jac"].append(self.jac_val.tolist())
                 else:
-                    self.info['x'].append(self.x_val[0])
-                    self.info['jac'].append(self.jac_val[0])
+                    self.info["x"].append(self.x_val[0])
+                    self.info["jac"].append(self.jac_val[0])
         return None
 
     def fun(self, x):
         self.eval_parallel(x=x)
         if self.verbose:
-            print('fun(' + str(x) + ') = ' + str(self.fun_val))
+            print("fun(" + str(x) + ") = " + str(self.fun_val))
         return self.fun_val
 
     def jac(self, x):
         self.eval_parallel(x=x)
         if self.verbose:
-            print('jac(' + str(x)+ ') = ' + str(self.jac_val))
+            print("jac(" + str(x) + ") = " + str(self.jac_val))
         return self.jac_val
 
 
-def minimize_parallel(fun, x0,
-                      args=(),
-                      jac=None,
-                      bounds=None,
-                      tol=None,
-                      options=None,
-                      callback=None,
-                      parallel=None):
-
+def minimize_parallel(
+    fun,
+    x0,
+    args=(),
+    jac=None,
+    bounds=None,
+    tol=None,
+    options=None,
+    callback=None,
+    parallel=None,
+):
     """
     A parallel version of the L-BFGS-B optimizer of
     `scipy.optimize.minimize()`. Using it can significantly reduce the
@@ -302,74 +325,116 @@ def minimize_parallel(fun, x0,
         n = 1
 
     if jac is True:
-        raise ValueError("'fun' returning the function AND its "
-                         "gradient is not supported.\n"
-                         "Please specify separate functions in "
-                         "'fun' and 'jac'.")
+        raise ValueError(
+            "'fun' returning the function AND its "
+            "gradient is not supported.\n"
+            "Please specify separate functions in "
+            "'fun' and 'jac'."
+        )
 
     # update default options with specified options
-    options_used = {'disp': None, 'maxcor': 10,
-                    'ftol': 2.220446049250313e-09, 'gtol': 1e-05,
-                    'eps': 1e-08, 'maxfun': 15000,
-                    'maxiter': 15000, 'iprint': -1, 'maxls': 20}
+    options_used = {
+        "disp": None,
+        "maxcor": 10,
+        "ftol": 2.220446049250313e-09,
+        "gtol": 1e-05,
+        "eps": 1e-08,
+        "maxfun": 15000,
+        "maxiter": 15000,
+        "iprint": -1,
+        "maxls": 20,
+    }
     if not options is None:
         if not isinstance(options, dict):
             raise TypeError("argument 'options' must be of type 'dict'")
         options_used.update(options)
     if not tol is None:
-        if not options is None and 'gtol' in options:
-            warnings.warn("'tol' is ignored and 'gtol' in 'options' is used instead.",
-                          RuntimeWarning)
+        if not options is None and "gtol" in options:
+            warnings.warn(
+                "'tol' is ignored and 'gtol' in 'options' is used instead.",
+                RuntimeWarning,
+            )
         else:
-            options_used['gtol'] = tol
+            options_used["gtol"] = tol
 
-    parallel_used = {'max_workers': None, 'forward': True, 'verbose': False,
-                     'loginfo': False, 'time': False}
+    parallel_used = {
+        "max_workers": None,
+        "forward": True,
+        "verbose": False,
+        "loginfo": False,
+        "time": False,
+    }
     if not parallel is None:
         if not isinstance(parallel, dict):
             raise TypeError("argument 'parallel' must be of type 'dict'")
         parallel_used.update(parallel)
 
-    if parallel_used.get('time'):
+    if parallel_used.get("time"):
         time_start = time.time()
 
-    with concurrent.futures.ProcessPoolExecutor(max_workers=
-                         parallel_used.get('max_workers')) as executor:
-        fun_jac = EvalParallel(fun=fun,
-                               jac=jac,
-                               args=args,
-                               eps=options_used.get('eps'),
-                               executor=executor,
-                               forward=parallel_used.get('forward'),
-                               loginfo=parallel_used.get('loginfo'),
-                               verbose=parallel_used.get('verbose'),
-                               n=n)
-        out = minimize(fun=fun_jac.fun,
-                       x0=x0,
-                       jac=fun_jac.jac,
-                       method='L-BFGS-B',
-                       bounds=bounds,
-                       callback=callback,
-                       options=options_used)
+    with concurrent.futures.ProcessPoolExecutor(
+        max_workers=parallel_used.get("max_workers")
+    ) as executor:
+        fun_jac = EvalParallel(
+            fun=fun,
+            jac=jac,
+            args=args,
+            eps=options_used.get("eps"),
+            executor=executor,
+            forward=parallel_used.get("forward"),
+            loginfo=parallel_used.get("loginfo"),
+            verbose=parallel_used.get("verbose"),
+            n=n,
+        )
+        out = minimize(
+            fun=fun_jac.fun,
+            x0=x0,
+            jac=fun_jac.jac,
+            method="L-BFGS-B",
+            bounds=bounds,
+            callback=callback,
+            options=options_used,
+        )
 
-    if parallel_used.get('loginfo'):
-        out.loginfo = {k: (lambda x: np.array(x) if isinstance(x[0], list)
-                           else np.array(x)[np.newaxis].T)(v) for k, v in fun_jac.info.items()}
+    if parallel_used.get("loginfo"):
+        out.loginfo = {
+            k: (
+                lambda x: np.array(x)
+                if isinstance(x[0], list)
+                else np.array(x)[np.newaxis].T
+            )(v)
+            for k, v in fun_jac.info.items()
+        }
 
-    if parallel_used.get('time'):
+    if parallel_used.get("time"):
         time_end = time.time()
-        out.time = {'elapsed': time_end - time_start,
-                    'step': (time_end - time_start) / out.nfev}
+        out.time = {
+            "elapsed": time_end - time_start,
+            "step": (time_end - time_start) / out.nfev,
+        }
 
     return out
 
 
-def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
-                           bounds=None, m=10, factr=1e7, pgtol=1e-5,
-                           epsilon=1e-8, iprint=-1, maxfun=15000,
-                           maxiter=15000, disp=None, callback=None, maxls=20,
-                           parallel=None):
-
+def fmin_l_bfgs_b_parallel(
+    func,
+    x0,
+    fprime=None,
+    args=(),
+    approx_grad=0,
+    bounds=None,
+    m=10,
+    factr=1e7,
+    pgtol=1e-5,
+    epsilon=1e-8,
+    iprint=-1,
+    maxfun=15000,
+    maxiter=15000,
+    disp=None,
+    callback=None,
+    maxls=20,
+    parallel=None,
+):
     """
     A parallel version of the L-BFGS-B optimizer `fmin_l_bfgs_b()`.
     Using it can significantly reduce the optimization time.
@@ -451,40 +516,56 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
         jac = None
     else:
         if fprime is None:
-            raise ValueError("'func' returning the function AND its "
-                             "gradient is not supported.\n"
-                             "Please specify separate functions in "
-                             "'func' and 'fprime'.")
+            raise ValueError(
+                "'func' returning the function AND its "
+                "gradient is not supported.\n"
+                "Please specify separate functions in "
+                "'func' and 'fprime'."
+            )
         jac = fprime
 
     # build options
     if disp is None:
         disp = iprint
-    options = {'disp': disp,
-               'iprint': iprint,
-               'maxcor': m,
-               'ftol': factr * np.finfo(float).eps,
-               'gtol': pgtol,
-               'eps': epsilon,
-               'maxfun': maxfun,
-               'maxiter': maxiter,
-               'maxls': maxls}
+    options = {
+        "disp": disp,
+        "iprint": iprint,
+        "maxcor": m,
+        "ftol": factr * np.finfo(float).eps,
+        "gtol": pgtol,
+        "eps": epsilon,
+        "maxfun": maxfun,
+        "maxiter": maxiter,
+        "maxls": maxls,
+    }
 
-    res = minimize_parallel(fun=fun, x0=x0, args=args, jac=jac, bounds=bounds,
-                            options=options, callback=callback,
-                            parallel=parallel)
-    x = res['x']
-    f = res['fun']
-    d = {'grad': res['jac'],
-         'task': res['message'],
-         'funcalls': res['nfev'],
-         'nit': res['nit'],
-         'warnflag': res['status']}
+    res = minimize_parallel(
+        fun=fun,
+        x0=x0,
+        args=args,
+        jac=jac,
+        bounds=bounds,
+        options=options,
+        callback=callback,
+        parallel=parallel,
+    )
+    x = res["x"]
+    f = res["fun"]
+    d = {
+        "grad": res["jac"],
+        "task": res["message"],
+        "funcalls": res["nfev"],
+        "nit": res["nit"],
+        "warnflag": res["status"],
+    }
 
     return x, f, d
 
+
 # create aliases for users looking for an optimparallel function
 optimParallel = minimize_parallel
-optimParallel.__doc__ = "Same function as `minimize_parallel()`. See `help(minimize_parallel)`."
+optimParallel.__doc__ = (
+    "Same function as `minimize_parallel()`. See `help(minimize_parallel)`."
+)
 optimparallel = minimize_parallel
 optimparallel.__doc__ = optimParallel.__doc__

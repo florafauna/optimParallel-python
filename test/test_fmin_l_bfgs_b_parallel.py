@@ -9,75 +9,124 @@ from src.optimparallel import fmin_l_bfgs_b_parallel
 ## 'func' and 'fprime' cannot be used as function names
 func, fprime = None, None
 
+
 def func0(x):
-    return sum((x-3)**2)
+    return sum((x - 3) ** 2)
+
 
 def fprime0(x):
-    return 2*(x-3)
+    return 2 * (x - 3)
+
 
 def func_arg1(x, a):
-    return sum((x-a)**2)
+    return sum((x - a) ** 2)
+
 
 def fprime_arg1(x, a):
-    return 2*(x-a)
+    return 2 * (x - a)
+
 
 def func_arg2(x, a, b):
-    return sum((x-a)**2)
+    return sum((x - a) ** 2)
+
 
 def fprime_arg2(x, a, b):
-    return 2*(x-a)
+    return 2 * (x - a)
+
 
 def func_upper0(x, ub):
     if not any(x <= ub):
         raise ValueError("x has to be smaller than upper bound")
-    return sum((x-1)**2)
+    return sum((x - 1) ** 2)
+
 
 def fprime_upper0(x, ub):
     if not any(x <= ub):
         raise ValueError("x has to be smaller than upper bound")
-    return 2*(x-1)
+    return 2 * (x - 1)
+
 
 def func_lower0(x, ub):
     if not any(x >= ub):
         raise ValueError("x has to be larger than lower bound")
-    return sum((x-1)**2)
+    return sum((x - 1) ** 2)
+
 
 def fprime_lower0(x, ub):
     if not any(x >= ub):
         raise ValueError("x has to be larger than lower bound")
-    return 2*(x-1)
+    return 2 * (x - 1)
 
 
-
-def check_fmin(func_id, x0,
-               args=(),
-               approx_grad=0,
-               bounds=None,
-               m=10, factr=1e7, pgtol=1e-5, epsilon=1e-8, iprint=-1, maxiter=15000,
-               disp=None, maxls=20,
-               max_workers=None, forward=True, verbose=False,
-               CHECK_X=True, CHECK_FUN=True, CHECK_JAC=True,
-               CHECK_STATUS=True, TRACEBACKHIDE=True,
-               ATOL=1e-5):
+def check_fmin(
+    func_id,
+    x0,
+    args=(),
+    approx_grad=0,
+    bounds=None,
+    m=10,
+    factr=1e7,
+    pgtol=1e-5,
+    epsilon=1e-8,
+    iprint=-1,
+    maxiter=15000,
+    disp=None,
+    maxls=20,
+    max_workers=None,
+    forward=True,
+    verbose=False,
+    CHECK_X=True,
+    CHECK_FUN=True,
+    CHECK_JAC=True,
+    CHECK_STATUS=True,
+    TRACEBACKHIDE=True,
+    ATOL=1e-5,
+):
     """Helper function to test fmin_l_bfgs_b_parallel() against fmin_l_bfgs_b()."""
     __tracebackhide__ = TRACEBACKHIDE
 
     ## load parameters of scenario
     global func, fprime
-    func = globals()['func' + str(func_id)]
-    fprime = None if approx_grad else globals()['fprime' + str(func_id)]
-    parallel = {'max_workers': max_workers, 'forward': forward, 'verbose': verbose}
+    func = globals()["func" + str(func_id)]
+    fprime = None if approx_grad else globals()["fprime" + str(func_id)]
+    parallel = {"max_workers": max_workers, "forward": forward, "verbose": verbose}
 
-    ml = fmin_l_bfgs_b(func=func, x0=x0, fprime=fprime, args=args,
-                       approx_grad=approx_grad, bounds=bounds, m=m, factr=factr,
-                       pgtol=pgtol, epsilon=epsilon, iprint=iprint,
-                       maxiter=maxiter, disp=disp, callback=None, maxls=maxls)
+    ml = fmin_l_bfgs_b(
+        func=func,
+        x0=x0,
+        fprime=fprime,
+        args=args,
+        approx_grad=approx_grad,
+        bounds=bounds,
+        m=m,
+        factr=factr,
+        pgtol=pgtol,
+        epsilon=epsilon,
+        iprint=iprint,
+        maxiter=maxiter,
+        disp=disp,
+        callback=None,
+        maxls=maxls,
+    )
 
-    mp = fmin_l_bfgs_b_parallel(func=func, x0=x0, fprime=fprime, args=args,
-                                approx_grad=approx_grad, bounds=bounds, m=m, factr=factr,
-                                pgtol=pgtol, epsilon=epsilon, iprint=iprint,
-                                maxiter=maxiter, disp=disp, callback=None, maxls=maxls,
-                                parallel=parallel)
+    mp = fmin_l_bfgs_b_parallel(
+        func=func,
+        x0=x0,
+        fprime=fprime,
+        args=args,
+        approx_grad=approx_grad,
+        bounds=bounds,
+        m=m,
+        factr=factr,
+        pgtol=pgtol,
+        epsilon=epsilon,
+        iprint=iprint,
+        maxiter=maxiter,
+        disp=disp,
+        callback=None,
+        maxls=maxls,
+        parallel=parallel,
+    )
 
     if CHECK_X and not all(np.isclose(ml[0], mp[0], atol=ATOL)):
         pytest.fail("x different: ml = {}, mp = {}".format(ml[0], mp[0]))
@@ -85,13 +134,21 @@ def check_fmin(func_id, x0,
     if CHECK_FUN and not np.isclose(ml[1], mp[1], atol=ATOL):
         pytest.fail("fun different: ml = {}, mp = {}".format(ml[1], mp[1]))
 
-    if CHECK_JAC and not all(np.isclose(ml[2].get('grad'), mp[2].get('grad'), atol=ATOL)):
-        pytest.fail("jac different: ml = {}, mp = {}".format(ml[2].get('grad'),
-                                                             mp[2].get('grad')))
+    if CHECK_JAC and not all(
+        np.isclose(ml[2].get("grad"), mp[2].get("grad"), atol=ATOL)
+    ):
+        pytest.fail(
+            "jac different: ml = {}, mp = {}".format(
+                ml[2].get("grad"), mp[2].get("grad")
+            )
+        )
 
-    if CHECK_STATUS and not ml[2].get('warnflag') == mp[2].get('warnflag'):
-        pytest.fail("warnflag different: ml = {}, mp = {}".format(ml[2].get('warnflag'),
-                                                             mp[2].get('warnflag')))
+    if CHECK_STATUS and not ml[2].get("warnflag") == mp[2].get("warnflag"):
+        pytest.fail(
+            "warnflag different: ml = {}, mp = {}".format(
+                ml[2].get("warnflag"), mp[2].get("warnflag")
+            )
+        )
 
 
 ## test options ----------------------------
@@ -105,12 +162,23 @@ def check_fmin(func_id, x0,
 @pytest.mark.parametrize("iprint", [-1])
 @pytest.mark.parametrize("maxiter", [1, 1500])
 @pytest.mark.parametrize("disp", [None])
-@pytest.mark.parametrize("maxls", [20,1])
-def test_fmin_args0(func_id, x0, approx_grad, m, factr, pgtol,
-                    epsilon, iprint, maxiter, disp, maxls):
-    check_fmin(func_id=func_id, x0=x0, approx_grad=approx_grad, m=m,
-               factr=factr, pgtol=pgtol, epsilon=epsilon, iprint=iprint,
-               maxiter=maxiter, disp=disp, maxls=maxls)
+@pytest.mark.parametrize("maxls", [20, 1])
+def test_fmin_args0(
+    func_id, x0, approx_grad, m, factr, pgtol, epsilon, iprint, maxiter, disp, maxls
+):
+    check_fmin(
+        func_id=func_id,
+        x0=x0,
+        approx_grad=approx_grad,
+        m=m,
+        factr=factr,
+        pgtol=pgtol,
+        epsilon=epsilon,
+        iprint=iprint,
+        maxiter=maxiter,
+        disp=disp,
+        maxls=maxls,
+    )
 
 
 ## test functions with 1 extra arg and parallel options --------------------
@@ -121,8 +189,14 @@ def test_fmin_args0(func_id, x0, approx_grad, m, factr, pgtol,
 @pytest.mark.parametrize("max_workers", [2, None])
 @pytest.mark.parametrize("forward", [True, False])
 def test_fmin_args1(func_id, x0, args, approx_grad, max_workers, forward):
-    check_fmin(func_id=func_id, x0=x0, args=args, approx_grad=approx_grad,
-               max_workers=max_workers, forward=forward)
+    check_fmin(
+        func_id=func_id,
+        x0=x0,
+        args=args,
+        approx_grad=approx_grad,
+        max_workers=max_workers,
+        forward=forward,
+    )
 
 
 ## test functions with 2 extra args and parallel options -----------------
@@ -133,8 +207,14 @@ def test_fmin_args1(func_id, x0, args, approx_grad, max_workers, forward):
 @pytest.mark.parametrize("max_workers", [2, None])
 @pytest.mark.parametrize("forward", [True, False])
 def test_fmin_args2(func_id, x0, args, approx_grad, max_workers, forward):
-    check_fmin(func_id=func_id, x0=x0, args=args, approx_grad=approx_grad,
-               max_workers=max_workers, forward=forward)
+    check_fmin(
+        func_id=func_id,
+        x0=x0,
+        args=args,
+        approx_grad=approx_grad,
+        max_workers=max_workers,
+        forward=forward,
+    )
 
 
 ## test bounds upper -------------------------------
@@ -144,10 +224,18 @@ def test_fmin_args2(func_id, x0, args, approx_grad, max_workers, forward):
 @pytest.mark.parametrize("forward", [True, False])
 @pytest.mark.parametrize("bu", [np.inf, 5, 1, 0])
 def test_fmin_upper(func_id, x0, approx_grad, forward, bu):
-    check_fmin(func_id=func_id, x0=x0, args=(bu,), approx_grad=approx_grad,
-               bounds=list(zip(itertools.repeat(-np.inf, len(x0)),
-                               itertools.repeat(bu-1e-8, len(x0)))),
-               forward=forward)
+    check_fmin(
+        func_id=func_id,
+        x0=x0,
+        args=(bu,),
+        approx_grad=approx_grad,
+        bounds=list(
+            zip(
+                itertools.repeat(-np.inf, len(x0)), itertools.repeat(bu - 1e-8, len(x0))
+            )
+        ),
+        forward=forward,
+    )
 
 
 ## test bounds lower -------------------------------
@@ -157,8 +245,13 @@ def test_fmin_upper(func_id, x0, approx_grad, forward, bu):
 @pytest.mark.parametrize("forward", [True, False])
 @pytest.mark.parametrize("bl", [5, 1, 0, -np.inf])
 def test_fmin_lower(func_id, x0, approx_grad, forward, bl):
-    check_fmin(func_id=func_id, x0=x0, args=(bl,), approx_grad=approx_grad,
-               bounds=list(zip(itertools.repeat(bl+1e-8, len(x0)),
-                               itertools.repeat(np.inf, len(x0)))),
-               forward=forward)
-
+    check_fmin(
+        func_id=func_id,
+        x0=x0,
+        args=(bl,),
+        approx_grad=approx_grad,
+        bounds=list(
+            zip(itertools.repeat(bl + 1e-8, len(x0)), itertools.repeat(np.inf, len(x0)))
+        ),
+        forward=forward,
+    )
