@@ -13,40 +13,50 @@ fun, jac = None, None
 def fun0(x):
     return sum((x-3)**2)
 
+
 def jac0(x):
     return 2*(x-3)
+
 
 def fun_arg1(x, a):
     return sum((x-a)**2)
 
+
 def jac_arg1(x, a):
     return 2*(x-a)
+
 
 def fun_arg2(x, a, b):
     return sum((x-a)**2)
 
+
 def jac_arg2(x, a, b):
     return 2*(x-a)
+
 
 def fun_upper0(x, ub):
     if not any(x <= ub):
         raise ValueError("x has to be smaller than upper bound")
     return sum((x-1)**2)
 
+
 def jac_upper0(x, ub):
     if not any(x <= ub):
         raise ValueError("x has to be smaller than upper bound")
     return 2*(x-1)
+
 
 def fun_lower0(x, ub):
     if not any(x >= ub):
         raise ValueError("x has to be larger than lower bound")
     return sum((x-1)**2)
 
+
 def jac_lower0(x, ub):
     if not any(x >= ub):
         raise("x has to be larger than lower bound")
     return 2*(x-1)
+
 
 def compare_minimize(x0, args=(), bounds=None, tol=None,
                      options=None, parallel=None,
@@ -104,7 +114,6 @@ def check_minimize(fun_id, x0,
                      CHECK_X=CHECK_X, CHECK_FUN=CHECK_FUN, CHECK_JAC=CHECK_JAC,
                      CHECK_STATUS=CHECK_STATUS, TRACEBACKHIDE=TRACEBACKHIDE,
                      ATOL=ATOL)
-
 
 
 ## test options ----------------------------

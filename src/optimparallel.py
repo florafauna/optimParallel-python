@@ -47,10 +47,10 @@ class EvalParallel:
             self.info = {k:[] for k in ['x', 'fun', 'jac']}
         self.np_precision = np.finfo(float).eps
 
-    ## static helper methods are used for parallel execution with map()
+    # static helper methods are used for parallel execution with map()
     @staticmethod
     def _eval_approx_args(args, eps_at, fun, x, eps):
-        ## 'fun' has additional 'args'
+        # 'fun' has additional 'args'
         if eps_at == 0:
             x_ = x
         elif eps_at <= len(x):
@@ -63,7 +63,7 @@ class EvalParallel:
 
     @staticmethod
     def _eval_approx(eps_at, fun, x, eps):
-        ## 'fun' has no additional 'args'
+        # 'fun' has no additional 'args'
         if eps_at == 0:
             x_ = x
         elif eps_at <= len(x):
@@ -76,24 +76,24 @@ class EvalParallel:
 
     @staticmethod
     def _eval_fun_jac_args(args, which, fun, jac, x):
-        ## 'fun' and 'jec; have additional 'args'
+        # 'fun' and 'jec; have additional 'args'
         if which == 0:
             return fun(x, *args)
         return np.array(jac(x, *args))
 
     @staticmethod
     def _eval_fun_jac(which, fun, jac, x):
-        ## 'fun' and 'jac' have no additionals 'args'
+        # 'fun' and 'jac' have no additionals 'args'
         if which == 0:
             return fun(x)
         return np.array(jac(x))
 
     def eval_parallel(self, x):
-        ## function to evaluate 'fun' and 'jac' in parallel
-        ## - if 'jac' is None, the gradient is computed numerically
-        ## - if 'forward' is True, the numerical gradient uses the
-        ##       forward difference method,
-        ##       otherwise, the central difference method is used
+        # function to evaluate 'fun' and 'jac' in parallel
+        # - if 'jac' is None, the gradient is computed numerically
+        # - if 'forward' is True, the numerical gradient uses the
+        #       forward difference method,
+        #       otherwise, the central difference method is used
         x = np.array(x)
         if (self.x_val is not None and
             all(abs(self.x_val - x) <= self.np_precision*2)):
@@ -107,9 +107,9 @@ class EvalParallel:
                 else:
                     eps_at = range(2*len(x)+1)
 
-                ## pack 'self.args' into function because otherwise it
-                ## cannot be serialized by
-                ## 'concurrent.futures.ProcessPoolExecutor()'
+                # pack 'self.args' into function because otherwise it
+                # cannot be serialized by
+                # 'concurrent.futures.ProcessPoolExecutor()'
                 if len(self.args) > 0:
                     ftmp = functools.partial(self._eval_approx_args, self.args)
                 else:
@@ -237,17 +237,17 @@ def minimize_parallel(fun, x0,
     >>> import numpy as np
     >>> import time
     >>>
-    >>> ## objective function
+    >>> # objective function
     ... def f(x, sleep_secs=.5):
     ...     print('*', end='')
     ...     time.sleep(sleep_secs)
     ...     return sum((x-14)**2)
     >>>
-    >>> ## start value
+    >>> # start value
     ... x0 = np.array([10,20])
     >>>
-    >>> ## minimize with parallel evaluation of 'fun' and
-    >>> ## its approximate gradient.
+    >>> # minimize with parallel evaluation of 'fun' and
+    >>> # its approximate gradient.
     >>> o1 = minimize_parallel(fun=f, x0=x0, args=.5)
     *********
     >>> print(o1)
@@ -262,7 +262,7 @@ def minimize_parallel(fun, x0,
       success: True
             x: array([14.00000097, 14.00000111])
     >>>
-    >>> ## test against scipy.optimize.minimize()
+    >>> # test against scipy.optimize.minimize()
     >>> o2 = minimize(fun=f, x0=x0, args=.5, method='L-BFGS-B')
     *********
     >>> print(all(np.isclose(o1.x, o2.x, atol=1e-10)),
@@ -295,7 +295,7 @@ def minimize_parallel(fun, x0,
     Lewis Blake (testing, 'loginfo', 'time' features).
     """
 
-    ## get length of x0
+    # get length of x0
     try:
         n = len(x0)
     except Exception:
@@ -307,7 +307,7 @@ def minimize_parallel(fun, x0,
                          "Please specify separate functions in "
                          "'fun' and 'jac'.")
 
-    ## update default options with specified options
+    # update default options with specified options
     options_used = {'disp': None, 'maxcor': 10,
                     'ftol': 2.220446049250313e-09, 'gtol': 1e-05,
                     'eps': 1e-08, 'maxfun': 15000,
@@ -483,7 +483,7 @@ def fmin_l_bfgs_b_parallel(func, x0, fprime=None, args=(), approx_grad=0,
 
     return x, f, d
 
-## create aliases for users looking for an optimparallel function
+# create aliases for users looking for an optimparallel function
 optimParallel = minimize_parallel
 optimParallel.__doc__ = "Same function as `minimize_parallel()`. See `help(minimize_parallel)`."
 optimparallel = minimize_parallel
