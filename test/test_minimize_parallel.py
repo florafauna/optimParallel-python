@@ -156,7 +156,7 @@ def check_minimize(
         "max_workers": max_workers,
         "forward": forward,
         "verbose": verbose,
-        'executor': None
+        "executor": None,
     }
     
     options = {
@@ -195,6 +195,7 @@ def check_minimize(
 @pytest.mark.parametrize("maxiter", [1, 1500])
 @pytest.mark.parametrize("disp", [None])
 @pytest.mark.parametrize("maxls", [20, 1])
+@pytest.mark.parametrize("executor", [None, concurrent.futures.ThreadPoolExecutor(max_workers=2)])
 def test_minimize_args0(
         fun_id, x0, approx_grad, maxcor, ftol, gtol, eps, iprint, maxiter, disp, maxls, executor
 ):
