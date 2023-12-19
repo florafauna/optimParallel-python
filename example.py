@@ -5,7 +5,7 @@ On a Windows OS it might be necessary to run `minimize_parallel()`
 in the main scope. See `example_windows_os.py`.
 """
 
-from optimparallel import minimize_parallel
+from .src.optimparallel import minimize_parallel
 from scipy.optimize import minimize
 import numpy as np
 import time
