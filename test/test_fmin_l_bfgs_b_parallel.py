@@ -10,15 +10,15 @@ from src.optimparallel import fmin_l_bfgs_b_parallel
 func, fprime = None, None
 
 
-def func0(x):
+def func0(x: np.typing.ArrayLike):
     return sum((x - 3) ** 2)
 
 
-def fprime0(x):
+def fprime0(x: np.typing.ArrayLike):
     return 2 * (x - 3)
 
 
-def func_arg1(x, a):
+def func_arg1(x: np.typing.ArrayLike, a: np.typing.ArrayLike):
     return sum((x - a) ** 2)
 
 
@@ -34,25 +34,25 @@ def fprime_arg2(x, a, b):
     return 2 * (x - a)
 
 
-def func_upper0(x, ub):
+def func_upper0(x: np.typing.ArrayLike, ub: float):
     if not any(x <= ub):
         raise ValueError("x has to be smaller than upper bound")
     return sum((x - 1) ** 2)
 
 
-def fprime_upper0(x, ub):
+def fprime_upper0(x: np.typing.ArrayLike, ub: float):
     if not any(x <= ub):
         raise ValueError("x has to be smaller than upper bound")
     return 2 * (x - 1)
 
 
-def func_lower0(x, ub):
+def func_lower0(x: np.typing.ArrayLike, ub: float):
     if not any(x >= ub):
         raise ValueError("x has to be larger than lower bound")
     return sum((x - 1) ** 2)
 
 
-def fprime_lower0(x, ub):
+def fprime_lower0(x: np.typing.ArrayLike, ub: float):
     if not any(x >= ub):
         raise ValueError("x has to be larger than lower bound")
     return 2 * (x - 1)

@@ -22,6 +22,7 @@ import numpy as np
 from scipy.optimize import minimize, Bounds
 import time
 from typing import Any, Callable
+from numpy.typing import ArrayLike
 
 __all__ = [
     "minimize_parallel",
@@ -66,7 +67,7 @@ class EvalParallel:
     # static helper methods are used for parallel execution with map()
     @staticmethod
     def _eval_approx_args(
-        args: tuple[Any], eps_at: float, fun: Any, x: np.typing.ArrayLike, eps: float
+        args: tuple[Any], eps_at: float, fun: Any, x: ArrayLike, eps: float
     ):
         # 'fun' has additional 'args'
         if eps_at == 0:
@@ -80,7 +81,7 @@ class EvalParallel:
         return fun(x_, *args)
 
     @staticmethod
-    def _eval_approx(eps_at: float, fun: Callable, x: np.typing.ArrayLike, eps: float):
+    def _eval_approx(eps_at: float, fun: Callable, x: ArrayLike, eps: float):
         # 'fun' has no additional 'args'
         if eps_at == 0:
             x_ = x
@@ -98,7 +99,7 @@ class EvalParallel:
         which: int,
         fun: Callable,
         jac: Callable,
-        x: np.typing.ArrayLike,
+        x: ArrayLike,
     ):
         # 'fun' and 'jec; have additional 'args'
         if which == 0:
@@ -106,13 +107,13 @@ class EvalParallel:
         return np.array(jac(x, *args))
 
     @staticmethod
-    def _eval_fun_jac(which: int, fun: Callable, jac: Callable, x: np.typing.ArrayLike):
+    def _eval_fun_jac(which: int, fun: Callable, jac: Callable, x: ArrayLike):
         # 'fun' and 'jac' have no additionals 'args'
         if which == 0:
             return fun(x)
         return np.array(jac(x))
 
-    def eval_parallel(self, x: np.typing.ArrayLike):
+    def eval_parallel(self, x: ArrayLike):
         # function to evaluate 'fun' and 'jac' in parallel
         # - if 'jac' is None, the gradient is computed numerically
         # - if 'forward' is True, the numerical gradient uses the
@@ -184,7 +185,7 @@ class EvalParallel:
                     self.info["jac"].append(self.jac_val[0])
         return None
 
-    def fun(self, x: np.typing.ArrayLike):
+    def fun(self, x: ArrayLike):
         self.eval_parallel(x=x)
         if self.verbose:
             print("fun(" + str(x) + ") = " + str(self.fun_val))
@@ -199,7 +200,7 @@ class EvalParallel:
 
 def minimize_parallel(
     fun: Callable,
-    x0: np.typing.ArrayLike,
+    x0: ArrayLike,
     args: tuple[Any] = (),
     jac: Callable | None = None,
     bounds: Bounds | None = None,
@@ -436,9 +437,9 @@ def minimize_parallel(
 
 def fmin_l_bfgs_b_parallel(
     func: Callable,
-    x0: np.typing.ArrayLike,
+    x0: ArrayLike,
     fprime: Callable | None = None,
-    arg: tuple[Any] | None = (),
+    args: tuple[Any] | None = (),
     approx_grad: bool | None = 0,
     bounds: Bounds | None = None,
     m: int | None = 10,
