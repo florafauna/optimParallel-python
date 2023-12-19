@@ -19,8 +19,9 @@ import concurrent.futures
 import functools
 import itertools
 import numpy as np
-from scipy.optimize import minimize
+from scipy.optimize import minimize, Bounds
 import time
+from typing import Any, Callable
 
 __all__ = [
     "minimize_parallel",
@@ -33,15 +34,15 @@ __all__ = [
 class EvalParallel:
     def __init__(
         self,
-        fun,
-        jac=None,
-        args=(),
-        eps=1e-8,
+        fun: Callable,
+        jac: Any | None = None,
+        args: tuple[Any] = (),
+        eps: float = 1e-8,
         executor=concurrent.futures.ProcessPoolExecutor(),
-        forward=True,
-        loginfo=False,
-        verbose=False,
-        n=1,
+        forward: bool = True,
+        loginfo: bool = False,
+        verbose: bool = False,
+        n: int = 1,
     ):
         self.fun_in = fun
         self.jac_in = jac
@@ -64,7 +65,9 @@ class EvalParallel:
 
     # static helper methods are used for parallel execution with map()
     @staticmethod
-    def _eval_approx_args(args, eps_at, fun, x, eps):
+    def _eval_approx_args(
+        args: tuple[Any], eps_at: float, fun: Any, x: np.typing.ArrayLike, eps: float
+    ):
         # 'fun' has additional 'args'
         if eps_at == 0:
             x_ = x
@@ -77,7 +80,7 @@ class EvalParallel:
         return fun(x_, *args)
 
     @staticmethod
-    def _eval_approx(eps_at, fun, x, eps):
+    def _eval_approx(eps_at: float, fun: Callable, x: np.typing.ArrayLike, eps: float):
         # 'fun' has no additional 'args'
         if eps_at == 0:
             x_ = x
@@ -90,20 +93,26 @@ class EvalParallel:
         return fun(x_)
 
     @staticmethod
-    def _eval_fun_jac_args(args, which, fun, jac, x):
+    def _eval_fun_jac_args(
+        args: tuple[Any],
+        which: int,
+        fun: Callable,
+        jac: Callable,
+        x: np.typing.ArrayLike,
+    ):
         # 'fun' and 'jec; have additional 'args'
         if which == 0:
             return fun(x, *args)
         return np.array(jac(x, *args))
 
     @staticmethod
-    def _eval_fun_jac(which, fun, jac, x):
+    def _eval_fun_jac(which: int, fun: Callable, jac: Callable, x: np.typing.ArrayLike):
         # 'fun' and 'jac' have no additionals 'args'
         if which == 0:
             return fun(x)
         return np.array(jac(x))
 
-    def eval_parallel(self, x):
+    def eval_parallel(self, x: np.typing.ArrayLike):
         # function to evaluate 'fun' and 'jac' in parallel
         # - if 'jac' is None, the gradient is computed numerically
         # - if 'forward' is True, the numerical gradient uses the
@@ -139,10 +148,10 @@ class EvalParallel:
                 ret = np.array(list(ret))
                 self.fun_val = ret[0]
                 if self.forward:
-                    self.jac_val = (ret[1: (len(x) + 1)] - self.fun_val) / self.eps
+                    self.jac_val = (ret[1 : (len(x) + 1)] - self.fun_val) / self.eps
                 else:
                     self.jac_val = (
-                        ret[1: (len(x) + 1)] - ret[(len(x) + 1): 2 * len(x) + 1]
+                        ret[1 : (len(x) + 1)] - ret[(len(x) + 1) : 2 * len(x) + 1]
                     ) / (2 * self.eps)
 
             # 'jac' function is not None
@@ -175,7 +184,7 @@ class EvalParallel:
                     self.info["jac"].append(self.jac_val[0])
         return None
 
-    def fun(self, x):
+    def fun(self, x: np.typing.ArrayLike):
         self.eval_parallel(x=x)
         if self.verbose:
             print("fun(" + str(x) + ") = " + str(self.fun_val))
@@ -189,15 +198,15 @@ class EvalParallel:
 
 
 def minimize_parallel(
-    fun,
-    x0,
-    args=(),
-    jac=None,
-    bounds=None,
-    tol=None,
-    options=None,
-    callback=None,
-    parallel=None,
+    fun: Callable,
+    x0: np.typing.ArrayLike,
+    args: tuple[Any] = (),
+    jac: Callable | None = None,
+    bounds: Bounds | None = None,
+    tol: float | None = None,
+    options: dict | None = None,
+    callback: Callable | None = None,
+    parallel: dict | None = None,
 ):
     """
     A parallel version of the L-BFGS-B optimizer of
@@ -368,7 +377,7 @@ def minimize_parallel(
         "verbose": False,
         "loginfo": False,
         "time": False,
-        "executor": None
+        "executor": None,
     }
     if parallel is not None:
         if not isinstance(parallel, dict):
@@ -378,9 +387,9 @@ def minimize_parallel(
     if parallel_used.get("time"):
         time_start = time.time()
 
-    if parallel_used.get('executor') is None:
+    if parallel_used.get("executor") is None:
         parallel_used["executor"] = concurrent.futures.ProcessPoolExecutor(
-                    max_workers=parallel_used.get("max_workers", None)
+            max_workers=parallel_used.get("max_workers", None)
         )
 
     with parallel_used.get("executor") as executor:
@@ -426,23 +435,23 @@ def minimize_parallel(
 
 
 def fmin_l_bfgs_b_parallel(
-    func,
-    x0,
-    fprime=None,
-    args=(),
-    approx_grad=0,
-    bounds=None,
-    m=10,
-    factr=1e7,
-    pgtol=1e-5,
-    epsilon=1e-8,
-    iprint=-1,
-    maxfun=15000,
-    maxiter=15000,
-    disp=None,
-    callback=None,
-    maxls=20,
-    parallel=None,
+    func: Callable,
+    x0: np.typing.ArrayLike,
+    fprime: Callable | None = None,
+    arg: tuple[Any] | None = (),
+    approx_grad: bool | None = 0,
+    bounds: Bounds | None = None,
+    m: int | None = 10,
+    factr: float | None = 1e7,
+    pgtol: float | None = 1e-5,
+    epsilon: float | None = 1e-8,
+    iprint: int | None = -1,
+    maxfun: int | None = 15000,
+    maxiter: int | None = 15000,
+    disp: int | None = None,
+    callback: Callable | None = None,
+    maxls: int | None = 20,
+    parallel: dict = None,
 ):
     """
     A parallel version of the L-BFGS-B optimizer `fmin_l_bfgs_b()`.
