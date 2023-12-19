@@ -13,6 +13,7 @@ Functions
 - optimparallel: same as `minimize_parallel()`
 - fmin_l_bfgs_b_parallel: parallel version of `scipy.optimize.fmin_l_bfgs_b()`
 """
+from __future__ import annotations
 
 import warnings
 import concurrent.futures
@@ -23,6 +24,7 @@ from scipy.optimize import minimize, Bounds
 import time
 from typing import Any, Callable
 from numpy.typing import ArrayLike
+
 
 __all__ = [
     "minimize_parallel",

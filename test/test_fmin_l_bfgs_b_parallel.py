@@ -1,4 +1,5 @@
 # test fmin_l_bfgs_b_parallel()
+from __future__ import annotations
 import pytest
 import itertools
 import numpy as np
