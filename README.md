@@ -80,7 +80,7 @@ When using this package please cite:
 
 ### Contributor
 
-*   Lewis Blake
+*   Lewis Blake, <https://github.com/lewisblake>
 
 ### Contributions
 Contributions via pull requests are welcome.
