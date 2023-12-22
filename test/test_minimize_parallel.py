@@ -1,4 +1,5 @@
 # test minimize_parallel()
+from __future__ import annotations
 import pytest
 import itertools
 import concurrent.futures
@@ -142,7 +143,6 @@ def check_minimize(
     TRACEBACKHIDE=True,
     ATOL=1e-5,
 ):
-
     """Helper function to minimize_parallel() against minimize()."""
     __tracebackhide__ = TRACEBACKHIDE
 
@@ -158,7 +158,7 @@ def check_minimize(
         "verbose": verbose,
         "executor": None,
     }
-    
+
     options = {
         "disp": disp,
         "maxcor": maxcor,
@@ -184,6 +184,7 @@ def check_minimize(
         ATOL=ATOL,
     )
 
+
 @pytest.mark.parametrize("fun_id", [0])
 @pytest.mark.parametrize("x0", [np.array([1]), np.array([1, 2])])
 @pytest.mark.parametrize("approx_grad", [True, False])
@@ -195,9 +196,22 @@ def check_minimize(
 @pytest.mark.parametrize("maxiter", [1, 1500])
 @pytest.mark.parametrize("disp", [None])
 @pytest.mark.parametrize("maxls", [20, 1])
-@pytest.mark.parametrize("executor", [None, concurrent.futures.ThreadPoolExecutor(max_workers=2)])
+@pytest.mark.parametrize(
+    "executor", [None, concurrent.futures.ThreadPoolExecutor(max_workers=2)]
+)
 def test_minimize_args0(
-        fun_id, x0, approx_grad, maxcor, ftol, gtol, eps, iprint, maxiter, disp, maxls, executor
+    fun_id,
+    x0,
+    approx_grad,
+    maxcor,
+    ftol,
+    gtol,
+    eps,
+    iprint,
+    maxiter,
+    disp,
+    maxls,
+    executor,
 ):
     check_minimize(
         fun_id=fun_id,
@@ -211,7 +225,7 @@ def test_minimize_args0(
         maxiter=maxiter,
         disp=disp,
         maxls=maxls,
-        executor=executor
+        executor=executor,
     )
 
 
@@ -247,7 +261,9 @@ def test_minimize_time(x0):
 @pytest.mark.parametrize("approx_grad", [True, False])
 @pytest.mark.parametrize("max_workers", [2, None])
 @pytest.mark.parametrize("forward", [True, False])
-@pytest.mark.parametrize("executor", [None, concurrent.futures.ThreadPoolExecutor(max_workers=2)])
+@pytest.mark.parametrize(
+    "executor", [None, concurrent.futures.ThreadPoolExecutor(max_workers=2)]
+)
 def test_minimize_args1(fun_id, x0, args, approx_grad, max_workers, forward, executor):
     check_minimize(
         fun_id=fun_id,
@@ -256,7 +272,7 @@ def test_minimize_args1(fun_id, x0, args, approx_grad, max_workers, forward, exe
         approx_grad=approx_grad,
         max_workers=max_workers,
         forward=forward,
-        executor=executor
+        executor=executor,
     )
 
 
@@ -267,7 +283,9 @@ def test_minimize_args1(fun_id, x0, args, approx_grad, max_workers, forward, exe
 @pytest.mark.parametrize("approx_grad", [True, False])
 @pytest.mark.parametrize("max_workers", [2, None])
 @pytest.mark.parametrize("forward", [True, False])
-@pytest.mark.parametrize("executor", [None, concurrent.futures.ThreadPoolExecutor(max_workers=2)])
+@pytest.mark.parametrize(
+    "executor", [None, concurrent.futures.ThreadPoolExecutor(max_workers=2)]
+)
 def test_minimize_args2(fun_id, x0, args, approx_grad, max_workers, forward, executor):
     check_minimize(
         fun_id=fun_id,
@@ -276,8 +294,9 @@ def test_minimize_args2(fun_id, x0, args, approx_grad, max_workers, forward, exe
         approx_grad=approx_grad,
         max_workers=max_workers,
         forward=forward,
-        executor=executor
+        executor=executor,
     )
+
 
 # test bounds upper -------------------------------
 @pytest.mark.parametrize("fun_id", ["_upper0"])
@@ -334,5 +353,3 @@ def test_minimize_tol(fun_id, approx_grad, x0, tol, options):
     fun = globals()["fun" + str(fun_id)]
     jac = None if approx_grad else globals()["jac" + str(fun_id)]
     compare_minimize(x0=x0, tol=tol, options=options)
-
-
