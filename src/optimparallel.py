@@ -13,6 +13,7 @@ Functions
 - optimparallel: same as `minimize_parallel()`
 - fmin_l_bfgs_b_parallel: parallel version of `scipy.optimize.fmin_l_bfgs_b()`
 """
+
 from __future__ import annotations
 
 import warnings
@@ -420,9 +421,9 @@ def minimize_parallel(
     if parallel_used.get("loginfo"):
         out.loginfo = {
             k: (
-                lambda x: np.array(x)
-                if isinstance(x[0], list)
-                else np.array(x)[np.newaxis].T
+                lambda x: (
+                    np.array(x) if isinstance(x[0], list) else np.array(x)[np.newaxis].T
+                )
             )(v)
             for k, v in fun_jac.info.items()
         }
