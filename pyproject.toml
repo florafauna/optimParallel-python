@@ -4,8 +4,8 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "optimparallel"
-version = "0.1.3"
-authors = [{ name = "Florian Gerber", email = "flora.fauna.gerber@gmail.com" }]
+version = "0.1.4"
+authors = [{ name = "Florian Gerber", email = "flora.fauna.gerber@gmail.com" }, {name = "Lewis Blake"}]
 description = "A parallel version of the L-BFGS-B optimizer of scipy.optimize.minimize()."
 classifiers = [
     "Programming Language :: Python :: 3 :: Only",
