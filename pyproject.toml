@@ -37,7 +37,7 @@ Homepage = "https://github.com/florafauna/optimParallel-python"
 test = [
     "pytest",
 ]
-lint = ["mypy"]
+lint = ["mypy", "black"]
 dev = ["pytest-sugar"]
 
 # tox (https://tox.readthedocs.io/) is a tool for running tests
